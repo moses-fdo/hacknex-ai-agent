@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether-SWE · Antigravity Autonomous Software Engineering Agent</title>
+    <meta name="description" content="Antigravity-grade autonomous AI software engineering agent with multi-persona separation of powers and mathematical zero-regression sandboxing.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="brand-logo">
+                <span class="brand-glyph">▲</span>
+                <span class="brand-name">AETHER<span class="brand-accent">-SWE</span></span>
+                <span class="brand-badge">ANTIGRAVITY v1.0</span>
+            </div>
+            <div class="workspace-pill">
+                <span class="icon">📁</span>
+                <span class="workspace-name" id="currentRepoLabel">benchmarks/ecommerce_api</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="model-status-pill" id="modelStatusPill">
+                <span class="status-dot"></span>
+                <span class="model-label" id="currentModelLabel">Provider: Anthropic / Local</span>
+            </div>
+            <button class="btn btn-secondary" id="openHiddenTestBtn" title="Drop in hidden judge test suite">
+                <span class="icon">🧪</span> Evaluate Hidden Tests
+            </button>
+            <button class="btn btn-secondary" id="openSettingsBtn" title="Configure custom LLM endpoints">
+                <span class="icon">⚙️</span> BYOM Settings
+            </button>
+        </div>
+    </header>
+
+    <!-- Main IDE Workspace -->
+    <div class="workspace-container">
+        <!-- Left Column: Persona Guild & File Explorer -->
+        <aside class="sidebar-left">
+            <div class="panel-section">
+                <div class="section-title">
+                    <span>PERSONA GUILD</span>
+                    <span class="badge-count">9 Agents</span>
+                </div>
+
+                <div class="persona-squad">
+                    <div class="squad-header">🧭 SQUAD 1: DISCOVERY & STRATEGY</div>
+                    <div class="persona-card" id="persona-Cartographer" data-persona="Cartographer">
+                        <span class="persona-avatar">🧭</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Cartographer</span>
+                            <span class="persona-role">AST Symbol Cartographer</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Detective" data-persona="Detective">
+                        <span class="persona-avatar">🔍</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Detective</span>
+                            <span class="persona-role">RCA Defect Localizer</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Architect" data-persona="Architect">
+                        <span class="persona-avatar">📐</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Architect</span>
+                            <span class="persona-role">Surgical Blueprint Planner</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                </div>
+
+                <div class="persona-squad">
+                    <div class="squad-header">🛠️ SQUAD 2: IMPLEMENTATION</div>
+                    <div class="persona-card" id="persona-TestCrafter" data-persona="TestCrafter">
+                        <span class="persona-avatar">🧪</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Test Crafter</span>
+                            <span class="persona-role">TDD Reproduction Specialist</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Surgeon" data-persona="Surgeon">
+                        <span class="persona-avatar">⚡</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Surgeon</span>
+                            <span class="persona-role">Atomic Diff Generator</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Sentinel" data-persona="Sentinel">
+                        <span class="persona-avatar">🛡️</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Sentinel</span>
+                            <span class="persona-role">Anti-Hallucination Guard</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                </div>
+
+                <div class="persona-squad">
+                    <div class="squad-header">⚖️ SQUAD 3: GOVERNANCE</div>
+                    <div class="persona-card" id="persona-Judge" data-persona="Judge">
+                        <span class="persona-avatar">⚖️</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Judge</span>
+                            <span class="persona-role">Sandbox Regression Arbiter</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Critic" data-persona="Critic">
+                        <span class="persona-avatar">🧐</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Critic</span>
+                            <span class="persona-role">Cleanliness & Style Auditor</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                    <div class="persona-card" id="persona-Scribe" data-persona="Scribe">
+                        <span class="persona-avatar">📜</span>
+                        <div class="persona-meta">
+                            <span class="persona-name">Scribe</span>
+                            <span class="persona-role">RCA Dossier Chronicler</span>
+                        </div>
+                        <span class="persona-status-tag status-pending">IDLE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Codebase File Explorer -->
+            <div class="panel-section file-tree-section">
+                <div class="section-title">
+                    <span>CODEBASE EXPLORER</span>
+                    <button class="btn-icon" id="refreshTreeBtn" title="Refresh AST scan">🔄</button>
+                </div>
+                <div class="file-tree" id="fileTreeContainer">
+                    <div class="loading-spinner">Loading AST Cartography...</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Workstation: Control Bar & Interactive Tabs -->
+        <main class="main-workstation">
+            <!-- Mission Control Panel -->
+            <div class="mission-control-panel">
+                <div class="challenge-selector-row">
+                    <label for="presetSelect">🎯 PRESET HACKATHON CHALLENGES:</label>
+                    <select id="presetSelect" class="select-input">
+                        <option value="">-- Choose a Preset Benchmark --</option>
+                    </select>
+                </div>
+
+                <div class="prompt-input-row">
+                    <textarea id="issuePromptInput" class="textarea-input" placeholder="Enter task, bug description, or requested feature (e.g. 'Fix UTC timezone expiration in auth tokens without breaking existing login tests')..."></textarea>
+                    <button class="btn btn-primary btn-run" id="runAgentBtn">
+                        <span class="icon">🚀</span> RUN AUTONOMOUS AGENT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Header -->
+            <div class="tab-header">
+                <button class="tab-btn active" data-tab="tab-stream">
+                    <span class="icon">💬</span> Live Event Stream
+                </button>
+                <button class="tab-btn" data-tab="tab-diff">
+                    <span class="icon">🔀</span> Surgical Diff Inspector
+                </button>
+                <button class="tab-btn" data-tab="tab-ast">
+                    <span class="icon">🕸️</span> AST Symbol Map
+                </button>
+                <button class="tab-btn" data-tab="tab-sandbox">
+                    <span class="icon">⚖️</span> Judge Test Matrix
+                </button>
+                <button class="tab-btn" data-tab="tab-dossier">
+                    <span class="icon">📜</span> Executive Audit Dossier
+                </button>
+            </div>
+
+            <!-- Tab 1: Live Event Stream -->
+            <div class="tab-content active" id="tab-stream">
+                <div class="stream-container" id="streamContainer">
+                    <div class="empty-state">
+                        <div class="empty-glyph">▲</div>
+                        <div class="empty-title">Aether-SWE Autonomous Engine Standby</div>
+                        <div class="empty-desc">Select a challenge above and click "Run Autonomous Agent" to watch the 9-Persona Guild coordinate live.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Surgical Diff Inspector -->
+            <div class="tab-content" id="tab-diff">
+                <div class="diff-container">
+                    <div class="diff-header-bar">
+                        <span class="diff-target-label" id="diffTargetLabel">Diff Inspector</span>
+                        <div class="diff-stat-badges">
+                            <span class="badge badge-add" id="diffAddedBadge">+0 lines</span>
+                            <span class="badge badge-del" id="diffRemovedBadge">-0 lines</span>
+                        </div>
+                    </div>
+                    <pre class="diff-view" id="diffContent">No diff generated yet. Run the agent to generate atomic changesets.</pre>
+                </div>
+            </div>
+
+            <!-- Tab 3: AST Symbol Map -->
+            <div class="tab-content" id="tab-ast">
+                <div class="ast-container">
+                    <div class="ast-header-bar">
+                        <span>AST SYMBOL MAP & DEPENDENCY TREE</span>
+                        <span class="badge" id="astTotalFilesBadge">0 Files Mapped</span>
+                    </div>
+                    <pre class="ast-view" id="astSkeletonContent">Scanning codebase AST...</pre>
+                </div>
+            </div>
+
+            <!-- Tab 4: Judge Test Sandbox -->
+            <div class="tab-content" id="tab-sandbox">
+                <div class="sandbox-container">
+                    <div class="sandbox-metrics-bar">
+                        <div class="metric-card">
+                            <div class="metric-val" id="metricTotalTests">24</div>
+                            <div class="metric-label">TOTAL TESTS</div>
+                        </div>
+                        <div class="metric-card metric-success">
+                            <div class="metric-val" id="metricPassedTests">24</div>
+                            <div class="metric-label">PASSING</div>
+                        </div>
+                        <div class="metric-card metric-highlight">
+                            <div class="metric-val" id="metricRegressions">0</div>
+                            <div class="metric-label">REGRESSIONS</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-val" id="metricDuration">0.10s</div>
+                            <div class="metric-label">EXECUTION TIME</div>
+                        </div>
+                    </div>
+
+                    <div class="terminal-window">
+                        <div class="terminal-titlebar">
+                            <span class="terminal-dot dot-red"></span>
+                            <span class="terminal-dot dot-yellow"></span>
+                            <span class="terminal-dot dot-green"></span>
+                            <span class="terminal-title">Isolated Subprocess Pytest Runner</span>
+                        </div>
+                        <pre class="terminal-body" id="sandboxTerminalOutput">Waiting for test run...</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Executive Audit Dossier -->
+            <div class="tab-content" id="tab-dossier">
+                <div class="dossier-container">
+                    <div class="dossier-actions">
+                        <button class="btn btn-secondary" id="copyDossierBtn">📋 Copy Markdown</button>
+                    </div>
+                    <div class="dossier-markdown" id="dossierContent">
+                        <div class="empty-state">
+                            <div class="empty-desc">The Scribe will author the comprehensive Root Cause Analysis (RCA) and verification dossier once testing completes.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal 1: BYOM Settings Drawer -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>⚙️ UNIVERSAL MODEL GATEWAY (BYOM)</h3>
+                <button class="modal-close" id="closeSettingsBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">Bring Your Own Model: Plug in any OpenAI-compatible endpoint, local Ollama instance, or Anthropic Claude API key.</p>
+
+                <div class="form-group">
+                    <label>Provider Type</label>
+                    <select id="settingProvider" class="select-input">
+                        <option value="anthropic">Anthropic (Claude 3.5 Sonnet / Haiku)</option>
+                        <option value="openai_compatible">OpenAI / OpenRouter / Groq</option>
+                        <option value="ollama">Local Ollama (qwen2.5-coder / llama3.1)</option>
+                        <option value="simulation">High-Fidelity Simulation (Zero-Token Hackathon Demo)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Base URL / Endpoint</label>
+                    <input type="text" id="settingBaseUrl" class="text-input" placeholder="https://api.anthropic.com/v1 or http://localhost:11434/v1">
+                </div>
+
+                <div class="form-group">
+                    <label>Model Name</label>
+                    <input type="text" id="settingModelName" class="text-input" placeholder="claude-3-5-sonnet-20241022 or qwen2.5-coder:7b">
+                </div>
+
+                <div class="form-group">
+                    <label>API Key / Auth Token</label>
+                    <div class="input-with-action">
+                        <input type="password" id="settingApiKey" class="text-input" placeholder="sk-ant-... or sk-...">
+                        <button class="btn btn-secondary btn-sm" id="toggleApiKeyVisibility">👁️</button>
+                    </div>
+                </div>
+
+                <div class="connection-status-box" id="connectionStatusBox">
+                    <span id="connectionStatusMsg">Ready to test connection</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="testConnectionBtn">⚡ Test Connection</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">Save & Apply Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Hidden Test Evaluator (For Hackathon Judges) -->
+    <div class="modal-overlay" id="hiddenTestModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>🧪 EVALUATE HIDDEN TESTS (JUDGE SLOT)</h3>
+                <button class="modal-close" id="closeHiddenTestBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">Hackathon judges can drop in unannounced, secret test suites to verify that the agent's patch passes unseen acceptance tests without regression.</p>
+
+                <div class="form-group">
+                    <label>Hidden Test Code (Pytest Python)</label>
+                    <textarea id="hiddenTestCodeInput" class="textarea-input code-font" rows="8" placeholder="def test_hidden_judge_assertion():
+    from app.auth.tokens import is_token_expired
+    # secret judge test case
+    assert is_token_expired(1000) is True"></textarea>
+                </div>
+
+                <div class="hidden-eval-results" id="hiddenEvalResults"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="executeHiddenTestBtn">⚡ Run Hidden Tests Against Sandbox</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
