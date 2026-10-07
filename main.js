@@ -30,25 +30,40 @@ function saveRecentProject(folderPath) {
 }
 
 function startBackend() {
-  const venvPython = path.resolve(__dirname, ".venv/bin/uvicorn");
-  const pythonPath = fs.existsSync(venvPython) ? venvPython : "uvicorn";
+  const isWin = process.platform === "win32";
+  const venvPythonWin = path.resolve(__dirname, ".venv/Scripts/python.exe");
+  const venvPythonUnix = path.resolve(__dirname, ".venv/bin/python");
+
+  let pythonCmd = "python";
+  if (isWin && fs.existsSync(venvPythonWin)) {
+    pythonCmd = venvPythonWin;
+  } else if (!isWin && fs.existsSync(venvPythonUnix)) {
+    pythonCmd = venvPythonUnix;
+  }
 
   // Free port 8000 if already occupied by lingering process
   try {
     const { execSync } = require("child_process");
-    execSync("fuser -k 8000/tcp 2>/dev/null || lsof -ti:8000 | xargs kill -9 2>/dev/null || true");
+    if (isWin) {
+      execSync('cmd /c "for /f \"tokens=5\" %a in (\'netstat -aon ^| findstr :8000 ^| findstr LISTENING\') do taskkill /f /pid %a" 2>nul', { stdio: "ignore" });
+    } else {
+      execSync("fuser -k 8000/tcp 2>/dev/null || lsof -ti:8000 | xargs kill -9 2>/dev/null || true", { stdio: "ignore" });
+    }
   } catch (e) {}
 
   console.log("Starting Python FastAPI backend process...");
+  const venvBinDir = isWin ? path.resolve(__dirname, ".venv/Scripts") : path.resolve(__dirname, ".venv/bin");
+  const pathSep = isWin ? ";" : ":";
+
   backendProcess = spawn(
-    pythonPath,
-    ["backend.api.server:app", "--host", "127.0.0.1", "--port", "8000"],
+    pythonCmd,
+    ["-m", "uvicorn", "backend.api.server:app", "--host", "127.0.0.1", "--port", "8000"],
     {
       cwd: __dirname,
       env: {
         ...process.env,
-        PATH: `${path.resolve(__dirname, ".venv/bin")}:${process.env.PATH || ""}`,
-        PYTHONPATH: `${__dirname}:${path.resolve(__dirname, "benchmarks/ecommerce_api")}`,
+        PATH: `${venvBinDir}${pathSep}${process.env.PATH || ""}`,
+        PYTHONPATH: `${__dirname}${pathSep}${path.resolve(__dirname, "benchmarks/ecommerce_api")}`,
       },
     }
   );

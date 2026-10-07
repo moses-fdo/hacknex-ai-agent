@@ -3,27 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aether-SWE Studio</title>
-  <!-- Relative paths ensure loading under both http:// and file:// protocols -->
+  <title>AETHER — Autonomous Software Engineering</title>
+  <!-- Relative CSS links -->
+  <link rel="stylesheet" href="css/design-tokens.css">
   <link rel="stylesheet" href="css/vscode-theme.css">
   <link rel="stylesheet" href="css/command-center.css">
 </head>
 <body>
-  <!-- 1. VS Code Custom Titlebar -->
+  <!-- 1. Top Navigation Header -->
   <header class="vscode-titlebar">
     <div class="titlebar-left">
-      <!-- Hamburger Menu Button -->
+      <!-- Application Menu Button -->
       <button class="hamburger-btn" id="hamburgerBtn" title="Application Menu">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M1 3h14v1.5H1V3zm0 4.25h14v1.5H1V7.25zm0 4.25h14V13H1v-1.5z"/>
         </svg>
       </button>
 
-      <!-- Standard Menu Items -->
+      <!-- Brand Identity -->
+      <div class="brand-title-group">
+        <div class="brand-logo-badge">
+          <span>AETHER</span>
+          <span style="font-weight: 400; color: var(--text-secondary);">— Autonomous Software Engineering</span>
+        </div>
+        <div class="brand-subtitle">
+          <span class="status-indicator-dot" title="Status: Ready"></span>
+          <span>Status: Ready</span>
+        </div>
+      </div>
+
+      <!-- Preserved Navigation Menus -->
       <nav class="menu-items">
         <div class="menu-item" id="menuFile">
           File
-          <!-- File Dropdown Menu -->
           <div class="vscode-dropdown" id="fileDropdown">
             <div class="dropdown-entry" id="btnOpenFile">
               <span>Open File...</span>
@@ -119,7 +131,7 @@
           Run
           <div class="vscode-dropdown" id="runDropdown">
             <div class="dropdown-entry" id="btnMenuRunAgent">
-              <span>Start Autonomous Repair</span>
+              <span>Start Task</span>
               <span class="dropdown-shortcut">Ctrl+Enter</span>
             </div>
             <div class="dropdown-entry" id="btnMenuRunTests">
@@ -144,24 +156,24 @@
           Help
           <div class="vscode-dropdown" id="helpDropdown">
             <div class="dropdown-entry" id="btnHelpCustomEndpoint">
-              <span>Configure Custom Endpoint (BYOM)...</span>
+              <span>Configure Custom Endpoint...</span>
             </div>
             <div class="dropdown-entry" id="btnHelpAbout">
-              <span>About Aether-SWE Studio</span>
+              <span>About AETHER</span>
             </div>
           </div>
         </div>
       </nav>
     </div>
 
-    <!-- Center Search / Window Title -->
+    <!-- Center Repository Indicator -->
     <div class="titlebar-center">
       <div class="titlebar-search" id="titlebarSearch">
-        <span id="titlebarWorkspaceName">ecommerce_api</span> - Aether-SWE Studio
+        <span>Repository: <strong id="titlebarWorkspaceName" style="color: var(--text-primary);">ecommerce_api</strong></span>
       </div>
     </div>
 
-    <!-- Window Controls (Minimize, Maximize, Close) -->
+    <!-- Right Window Controls -->
     <div class="titlebar-controls">
       <button class="window-control-btn" id="winMinimize" title="Minimize">
         <svg width="10" height="10" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
@@ -177,30 +189,39 @@
     </div>
   </header>
 
-  <!-- 2. Main Workbench Area -->
+  <!-- 2. Main Workbench Layout -->
   <div class="workbench-container">
-    <!-- Activity Bar (Left 48px Strip) -->
+    <!-- Left Navigation Sidebar Strip -->
     <aside class="activity-bar">
       <div class="activity-group">
-        <!-- Explorer (Active) -->
-        <button class="activity-btn active" id="actExplorer" title="Explorer (Ctrl+Shift+E)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+        <!-- Dashboard -->
+        <button class="activity-btn active" id="actAether" title="Dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
           </svg>
         </button>
 
-        <!-- Search -->
-        <button class="activity-btn" id="actSearch" title="Search (Ctrl+Shift+F)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <!-- Repository Explorer -->
+        <button class="activity-btn" id="actExplorer" title="Repository Explorer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 20h16a2 2 0 002-2V8a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 007.93 3H4a2 2 0 00-2 2v13a2 2 0 002 2z"/>
+          </svg>
+        </button>
+
+        <!-- Symbol Search -->
+        <button class="activity-btn" id="actSearch" title="Symbol Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
 
-        <!-- Source Control / Git -->
-        <button class="activity-btn" id="actGit" title="Source Control (Ctrl+Shift+G)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <!-- Source Control / Changes -->
+        <button class="activity-btn" id="actGit" title="Source Control & Changes">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <line x1="6" y1="3" x2="6" y2="15"></line>
             <circle cx="18" cy="6" r="3"></circle>
             <circle cx="6" cy="18" r="3"></circle>
@@ -208,26 +229,18 @@
           </svg>
         </button>
 
-        <!-- Run & Debug / Tests -->
-        <button class="activity-btn" id="actTests" title="Run & Tests (Ctrl+Shift+D)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <!-- Tests -->
+        <button class="activity-btn" id="actTests" title="Test Verification">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-        </button>
-
-        <!-- Aether-SWE Copilot / Orchestrator -->
-        <button class="activity-btn" id="actAether" title="Aether-SWE Orchestrator">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </button>
       </div>
 
-      <!-- Bottom Settings -->
+      <!-- Settings -->
       <div class="activity-group">
-        <button class="activity-btn" id="actSettings" title="Settings & Custom Endpoint (BYOM)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <button class="activity-btn" id="actSettings" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
@@ -235,12 +248,12 @@
       </div>
     </aside>
 
-    <!-- Primary Sidebar (260px) -->
+    <!-- Drawer Sidebar Pane -->
     <div class="vscode-sidebar">
       <!-- 1. Explorer View Pane -->
-      <div class="sidebar-view-pane active" id="paneExplorer">
+      <div class="sidebar-view-pane" id="paneExplorer">
         <div class="sidebar-title-header">
-          <span>Explorer</span>
+          <span>Repository Files</span>
           <div class="sidebar-actions">
             <button class="sidebar-icon-btn" id="btnSideOpenFolder" title="Open Folder">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -261,9 +274,7 @@
             <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
             <span>OPEN EDITORS</span>
           </div>
-          <div class="accordion-content" id="openEditorsList">
-            <!-- Populated dynamically -->
-          </div>
+          <div class="accordion-content" id="openEditorsList"></div>
 
           <!-- Project Workspace Explorer Accordion -->
           <div class="accordion-header" id="explorerWorkspaceAccordion">
@@ -271,19 +282,18 @@
             <span id="explorerWorkspaceHeader">ECOMMERCE_API</span>
           </div>
           <div class="accordion-content" id="explorerTree">
-            <!-- Tree Nodes populated dynamically -->
-            <div style="padding: 10px 16px; font-size: 11px; color: #858585;">Loading repository files...</div>
+            <div style="padding: 10px; font-size: 11px; color: var(--text-muted);">Loading repository files...</div>
           </div>
 
-          <!-- Grounded Fact Memory Accordion -->
+          <!-- Memory Accordion -->
           <div class="accordion-header" style="margin-top: 10px;">
             <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
-            <span>GROUNDED FACT MEMORY</span>
+            <span>FACT MEMORY GRAPH</span>
           </div>
-          <div class="accordion-content" id="memoryGraphInfo" style="padding: 6px 12px; font-size: 11px; color: #858585;">
+          <div class="accordion-content" id="memoryGraphInfo" style="padding: 8px; font-size: 11px; color: var(--text-secondary);">
             <div>Path: .aether/memory_graph.json</div>
-            <div>Symbols Indexed: 18</div>
-            <div>Verified Decisions: 1 (UTC Timestamps)</div>
+            <div>Indexed Symbols: 18</div>
+            <div>Verified Rules: 1 (UTC Timestamps)</div>
             <div>Veto History: 0 regressions</div>
           </div>
         </div>
@@ -292,57 +302,54 @@
       <!-- 2. Search View Pane -->
       <div class="sidebar-view-pane" id="paneSearch">
         <div class="sidebar-title-header">
-          <span>Search</span>
+          <span>Search Workspace</span>
         </div>
-        <div class="sidebar-search-box">
-          <input class="sidebar-search-input" id="sidebarSearchQuery" type="text" placeholder="Search workspace symbols..." />
-          <div style="font-size: 11px; color: #858585;" id="searchResultsCount">Type query to search AST symbols</div>
+        <div style="padding: 10px;">
+          <input class="form-input" id="sidebarSearchQuery" type="text" placeholder="Search symbols..." style="width: 100%;" />
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="searchResultsCount">Type query to search AST symbols</div>
         </div>
-        <div class="sidebar-sections" id="searchResultsList" style="padding: 8px;">
-          <div style="font-size: 11px; color: #858585; padding: 4px;">Indexed AST symbols available</div>
-        </div>
+        <div class="sidebar-sections" id="searchResultsList"></div>
       </div>
 
-      <!-- 3. Source Control / Git View Pane -->
+      <!-- 3. Source Control View Pane -->
       <div class="sidebar-view-pane" id="paneGit">
         <div class="sidebar-title-header">
-          <span>Source Control: Git</span>
+          <span>Source Control</span>
           <div class="sidebar-actions">
-            <button class="sidebar-icon-btn" id="btnRefreshGit" title="Refresh Git Status">
+            <button class="sidebar-icon-btn" id="btnRefreshGit" title="Refresh">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.65 2.35A7.958 7.958 0 0 0 8 0a8 8 0 1 0 8 8h-2a6 6 0 1 1-1.76-4.24l-2.48 2.48H16V0l-2.35 2.35z"/></svg>
             </button>
           </div>
         </div>
-        <div class="git-status-card">
-          <div><strong>Branch:</strong> <span id="gitBranchDisplay" style="color: #38BDF8;">main</span></div>
-          <div><strong>Worktree:</strong> <span id="gitWorktreeDisplay" style="color: #3fb950;">Isolated Safe</span></div>
-          <div style="margin-top: 6px; font-size: 11px; color: #858585;">Changes will be created in ephemeral worktree branch <code style="color: #cccccc;">aether/fix-&lt;id&gt;</code></div>
+        <div style="padding: 10px; font-size: 12px; background: var(--bg-canvas); border-bottom: 1px solid var(--border-subtle);">
+          <div>Branch: <strong id="gitBranchDisplay">main</strong></div>
+          <div>Worktree Mode: <strong id="gitWorktreeDisplay" style="color: var(--status-success);">Isolated Safe</strong></div>
         </div>
-        <div class="accordion-header" style="margin-top: 4px;">
+        <div class="accordion-header" style="margin-top: 6px;">
           <span>WORKING TREE CHANGES</span>
         </div>
-        <div class="accordion-content" id="gitChangesList" style="padding: 8px; font-size: 11px; color: #858585;">
-          No uncommitted changes in base tree.
+        <div class="accordion-content" id="gitChangesList" style="padding: 8px; font-size: 11px; color: var(--text-muted);">
+          No uncommitted changes in working tree.
         </div>
       </div>
 
-      <!-- 4. Testing & Regressions View Pane -->
+      <!-- 4. Testing Pane -->
       <div class="sidebar-view-pane" id="paneTests">
         <div class="sidebar-title-header">
-          <span>Testing & Regressions</span>
+          <span>Test Verification</span>
         </div>
-        <div class="test-runner-card">
+        <div style="padding: 12px;">
           <button class="btn-primary" id="btnSidebarRunTests" style="width: 100%;">
-            Run Baseline Tests (Pytest)
+            Run Pytest Verification Gate
           </button>
-          <div style="font-size: 11px; color: #858585;" id="sidebarTestSummary">
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;" id="sidebarTestSummary">
             Pytest regression gate checks baseline and post-patch passes.
           </div>
         </div>
         <div class="accordion-header">
-          <span>TEST SUITE</span>
+          <span>TEST SUITES</span>
         </div>
-        <div class="accordion-content" id="sidebarTestList" style="padding: 8px; font-size: 11px; color: #858585;">
+        <div class="accordion-content" id="sidebarTestList" style="padding: 8px; font-size: 11px; color: var(--text-secondary);">
           <div>• test_token_expiration_under_non_utc_timezone</div>
           <div>• test_generate_auth_token_format</div>
           <div>• test_validate_token_signature</div>
@@ -351,38 +358,36 @@
       </div>
     </div>
 
-    <!-- 5. Editor Workspace Area -->
+    <!-- 5. Main Editor Workspace Area -->
     <main class="editor-space">
       <!-- Tabs Bar -->
-      <div class="editor-tabs-bar" id="editorTabsBar">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="editor-tabs-bar" id="editorTabsBar"></div>
 
-      <!-- Breadcrumbs -->
+      <!-- Breadcrumbs Bar -->
       <div class="breadcrumb-bar" id="breadcrumbBar">
         <span class="breadcrumb-item" id="bcRepo">ecommerce_api</span>
         <span class="breadcrumb-sep">›</span>
-        <span class="breadcrumb-item" id="bcActiveFile">Aether Command Center</span>
+        <span class="breadcrumb-item" id="bcActiveFile">Dashboard</span>
       </div>
 
-      <!-- Editor Body Content -->
+      <!-- Workspace Content Area -->
       <div class="editor-body">
         <!-- Code File Editor View -->
         <section class="code-editor-container" id="codeEditorView" style="display: none;">
           <div class="editor-gutter" id="editorGutter">1</div>
           <div class="editor-content-area" id="editorContentArea" contenteditable="plaintext-only" spellcheck="false"></div>
-          <div style="position: absolute; top: 8px; right: 16px; font-size: 11px; color: #858585; pointer-events: none;" id="editorFileMeta">
+          <div style="position: absolute; top: 8px; right: 16px; font-size: 11px; color: var(--text-muted); pointer-events: none;" id="editorFileMeta">
             UTF-8 · Ctrl+S to save
           </div>
         </section>
 
-        <!-- Idle View: VS Code Issue Dispatcher -->
+        <!-- Main Dashboard View -->
         <section class="dispatcher-view" id="dispatcherView" style="display: flex;">
+          <!-- Primary Issue / Task Card -->
           <div class="vscode-launcher-card">
             <div class="card-title-group">
               <div class="launcher-heading">
-                <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2v12l10-6z"/></svg>
-                <span>Aether-SWE Autonomous Dispatcher</span>
+                <span>Task</span>
               </div>
               <button class="btn-open-folder" id="btnMainOpenFolder">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M14 4h-4.414L8.293 2.707A1 1 0 0 0 7.586 2.5H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/></svg>
@@ -390,111 +395,136 @@
               </button>
             </div>
 
-            <!-- Preset Action Pills -->
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn-open-folder" id="btnPresetEcommerce" style="background: #2d2d2d; border: 1px solid var(--vscode-border);">
+            <!-- Preset Buttons -->
+            <div class="preset-strip">
+              <button class="btn-open-folder" id="btnPresetEcommerce">
                 <span>Preset: Timezone Expiry Bug (ecommerce_api)</span>
               </button>
-              <button class="btn-open-folder" id="btnPresetTrace" style="background: #2d2d2d; border: 1px solid var(--vscode-border);">
+              <button class="btn-open-folder" id="btnPresetTrace">
                 <span>Paste Traceback</span>
               </button>
             </div>
 
-            <!-- Structured Input Box -->
+            <!-- Task Input Box -->
             <textarea
               class="vscode-input-box"
               id="issueTextarea"
-              placeholder="Describe issue or paste stack trace. Include anchor: file path (.py), function, or error message..."
+              placeholder="Describe the issue or paste a traceback..."
             ></textarea>
 
             <div id="triageFeedback"></div>
 
-            <!-- Bottom Action Controls -->
+            <!-- Controls Toolbar -->
             <div class="vscode-launcher-controls">
               <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <!-- Interactive Model Selector -->
+                <!-- Model Selector -->
                 <div style="position: relative;">
-                  <button id="modelTrigger" style="background: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 3px; color: #cccccc; padding: 4px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  <button class="btn-open-folder" id="modelTrigger">
                     <span>Model:</span>
-                    <span id="selectedModelLabel" style="color: #38BDF8; font-weight: 500;">Google Gemini 2.0 Flash ($0.15/1M)</span>
+                    <span id="selectedModelLabel" style="color: var(--text-primary); font-weight: 600;">Google Gemini 2.0 Flash ($0.15/1M)</span>
                     <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
                   </button>
-                  <div class="vscode-dropdown" id="modelMenu" style="width: 320px; top: 32px;">
+
+                  <div class="vscode-dropdown" id="modelMenu" style="width: 320px; top: 36px;">
                     <div class="dropdown-entry" data-model="gemini-2.0-flash" data-provider="gemini_native" data-label="Google Gemini 2.0 Flash ($0.15/1M)">
                       <div>
                         <strong>Google Gemini 2.0 Flash (Default)</strong>
-                        <div style="font-size: 11px; color: #858585;">Fast & accurate · $0.15 / 1M tokens</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">$0.15 / 1M tokens</div>
                       </div>
                     </div>
                     <div class="dropdown-entry" data-model="gemini-1.5-pro" data-provider="gemini_native" data-label="Google Gemini 1.5 Pro ($1.25/1M)">
                       <div>
                         <strong>Google Gemini 1.5 Pro</strong>
-                        <div style="font-size: 11px; color: #858585;">Deep reasoning · $1.25 / 1M tokens</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">$1.25 / 1M tokens</div>
                       </div>
                     </div>
                     <div class="dropdown-entry" data-model="gpt-4o" data-provider="openai_compatible" data-label="OpenAI GPT-4o ($2.50/1M)">
                       <div>
                         <strong>OpenAI GPT-4o</strong>
-                        <div style="font-size: 11px; color: #858585;">OpenAI API compatible · $2.50 / 1M tokens</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">$2.50 / 1M tokens</div>
                       </div>
                     </div>
                     <div class="dropdown-entry" data-model="claude-3-5-sonnet-20241022" data-provider="anthropic" data-label="Claude 3.5 Sonnet ($3.00/1M)">
                       <div>
                         <strong>Anthropic Claude 3.5 Sonnet</strong>
-                        <div style="font-size: 11px; color: #858585;">Anthropic API · $3.00 / 1M tokens</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">$3.00 / 1M tokens</div>
                       </div>
                     </div>
                     <div class="dropdown-entry" data-model="llama3.2" data-provider="openai_compatible" data-label="Local Ollama (Free)">
                       <div>
                         <strong>Local Ollama / LLaMA 3.2</strong>
-                        <div style="font-size: 11px; color: #858585;">http://localhost:11434/v1 · $0.00 (Free)</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">http://localhost:11434/v1</div>
                       </div>
                     </div>
                     <div class="dropdown-separator"></div>
                     <div class="dropdown-entry" id="btnOpenCustomModal">
                       <div>
-                        <strong style="color: #38BDF8;">+ Custom Endpoint / BYOM...</strong>
-                        <div style="font-size: 11px; color: #858585;">Gemini OpenAI, Groq, OpenRouter, private proxy</div>
+                        <strong>+ Custom Endpoint...</strong>
+                        <div style="font-size: 11px; color: var(--text-muted);">Gemini OpenAI, Groq, OpenRouter</div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Worktree Mode Trigger -->
+                <!-- Worktree Mode Selector -->
                 <div style="position: relative;">
-                  <button id="worktreeTrigger" style="background: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 3px; color: #cccccc; padding: 4px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  <button class="btn-open-folder" id="worktreeTrigger">
                     <span>Worktree Mode: Isolated [Safe]</span>
                     <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
                   </button>
-                  <div class="vscode-dropdown" id="worktreeMenu" style="width: 280px; top: 32px;">
+                  <div class="vscode-dropdown" id="worktreeMenu" style="width: 280px; top: 36px;">
                     <div class="dropdown-entry" data-mode="worktree">
                       <div>
                         <strong>Isolated Worktree [Safe]</strong>
-                        <div style="font-size: 11px; color: #858585;">Creates ../aether-run. Working branch immutable.</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">Creates ../aether-run. Base branch immutable.</div>
                       </div>
                     </div>
                     <div class="dropdown-entry" data-mode="local">
                       <div>
-                        <strong style="color: #f85149;">Local Working Tree [Unsafe]</strong>
-                        <div style="font-size: 11px; color: #858585;">Executes directly in place; rollbacks on fail.</div>
+                        <strong style="color: var(--status-error);">Local Working Tree [Unsafe]</strong>
+                        <div style="font-size: 11px; color: var(--text-muted);">Executes directly in place.</div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Run Task Primary Button -->
               <button class="btn-run-vscode" id="btnRunAgent">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2v12l10-6z"/></svg>
-                <span>Run Aether Agent (Ctrl+Enter)</span>
+                <span>[ Run Task ]</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Pinterest-Style Dashboard Cards Grid -->
+          <div class="metrics-dashboard-grid">
+            <div class="metric-card">
+              <div class="metric-label">Repository</div>
+              <div class="metric-value">ecommerce_api</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Python • 18 files</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Tests</div>
+              <div class="metric-value" style="color: var(--status-success);">24 passed</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">24 total</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Changes</div>
+              <div class="metric-value">0 files</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">working tree clean</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Activity</div>
+              <div class="metric-value" style="font-size: 16px;">Ready</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Spend: $0.000</div>
             </div>
           </div>
         </section>
 
-        <!-- Active View: Command Center Execution Grid -->
-        <section class="command-center-view" id="commandCenterView" style="display: none; height: 100%;">
-          <!-- Pipeline Route Header Strip -->
-          <div class="command-center-header" style="background: #252526; border-bottom: 1px solid var(--vscode-border);">
+        <!-- Command Center Live Execution View -->
+        <section class="command-center-view" id="commandCenterView" style="display: none;">
+          <!-- Workflow Progress Bar -->
+          <div class="command-center-header">
             <div class="route-stepper">
               <div class="step-node" id="stepTriage">Triage</div>
               <span class="step-arrow">›</span>
@@ -520,38 +550,38 @@
             </div>
           </div>
 
-          <!-- Body Grid (Telemetry + Diff + Judge) -->
-          <div class="command-center-body" style="background: #1e1e1e;">
-            <!-- Left Pane: Live Stream -->
-            <div class="pane-stream" style="background: #181818; border-right: 1px solid var(--vscode-border);">
-              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-bottom: 1px solid var(--vscode-border);">TELEMETRY & LOG STREAM</div>
-              <div class="stream-logs" id="streamLogs" style="font-family: 'JetBrains Mono', Consolas, monospace;"></div>
+          <!-- Multi-Pane Execution Grid -->
+          <div class="command-center-body">
+            <!-- Left Pane: Activity Stream -->
+            <div class="pane-stream">
+              <div class="pane-title">ACTIVITY STREAM</div>
+              <div class="stream-logs" id="streamLogs"></div>
             </div>
 
-            <!-- Center Pane: Multi-File Diff Inspector -->
-            <div class="pane-diff" style="background: #1e1e1e; border-right: 1px solid var(--vscode-border);">
-              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-bottom: 1px solid var(--vscode-border);">
+            <!-- Center Pane: Code Changes Diff Inspector -->
+            <div class="pane-diff">
+              <div class="pane-title">
                 <div class="diff-tabs">
-                  <button class="diff-tab active" id="diffTabName">app/auth/tokens.py (Working Tree Diff)</button>
+                  <button class="diff-tab active" id="diffTabName">app/auth/tokens.py (Diff)</button>
                 </div>
-                <span style="font-size: 11px; color: var(--vscode-diff-add-text);" id="criticCleanlinessBadge">Score: 96/100 · Minimal Slice</span>
+                <span style="font-size: 11px; color: var(--status-success);" id="criticCleanlinessBadge">Score: 96/100 · Minimal Slice</span>
               </div>
-              <div class="diff-content" id="diffViewer" style="background: #1e1e1e;">
-                <span style="color: #858585;">Awaiting Surgeon patch execution...</span>
+              <div class="diff-content" id="diffViewer">
+                <span style="color: var(--text-muted);">Awaiting task execution...</span>
               </div>
             </div>
 
-            <!-- Right Pane: Judge Regression Gate -->
-            <div class="pane-judge" style="background: #181818;">
-              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-bottom: 1px solid var(--vscode-border);">JUDGE REGRESSION GATE</div>
+            <!-- Right Pane: Test Results & Memory -->
+            <div class="pane-judge">
+              <div class="pane-title">TEST RESULTS</div>
               <div class="judge-report-box" id="judgeStats">
-                <div style="font-size: 12px; color: #858585;">Awaiting post-patch regression tests...</div>
+                <div style="font-size: 12px; color: var(--text-muted);">Awaiting test execution...</div>
               </div>
 
-              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-top: 1px solid var(--vscode-border); border-bottom: 1px solid var(--vscode-border); margin-top: auto;">
-                GROUNDED DECISION MEMORY
+              <div class="pane-title" style="margin-top: auto; border-top: 1px solid var(--border-subtle);">
+                DECISION MEMORY
               </div>
-              <div style="padding: 12px; font-size: 11px; color: #858585; font-family: 'JetBrains Mono', monospace;">
+              <div style="padding: 12px; font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; line-height: 18px;">
                 <div>• Invariant: Token expiry must use UTC</div>
                 <div>• Provenance: .aether/memory_graph.json</div>
                 <div>• Regressions logged: 0</div>
@@ -561,40 +591,39 @@
         </section>
       </div>
 
-      <!-- 6. Bottom Integrated Terminal / Panel -->
+      <!-- 6. Integrated Bottom Panel -->
       <section class="vscode-panel">
         <div class="panel-tabs-header">
           <div class="panel-tab-group">
             <div class="panel-tab" id="pTabProblems">Problems 0</div>
-            <div class="panel-tab active" id="pTabOutput">Output (Aether Telemetry)</div>
+            <div class="panel-tab active" id="pTabOutput">Activity Output</div>
             <div class="panel-tab" id="pTabTerminal">Terminal</div>
-            <div class="panel-tab" id="pTabJudge">Judge Tests</div>
+            <div class="panel-tab" id="pTabJudge">Test Gate</div>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="sidebar-icon-btn" id="btnClearPanel" title="Clear Panel Content">
+          <div>
+            <button class="sidebar-icon-btn" id="btnClearPanel" title="Clear Content">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M10 2v1H6V2h4zm3 2H3l1 11h8l1-11z"/></svg>
             </button>
           </div>
         </div>
 
-        <!-- Panel View 1: Problems -->
+        <!-- Panel 1: Problems -->
         <div class="panel-body" id="pContentProblems" style="display: none;">
-          <div style="color: #3fb950; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm3.78 5.72-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 8.69l3.97-3.97a.75.75 0 1 1 1.06 1.06z"/></svg>
-            <span>No compile, AST syntax, or invented import violations in current workspace.</span>
+          <div style="color: var(--status-success); display: flex; align-items: center; gap: 6px;">
+            <span>No compile or syntax errors in current workspace.</span>
           </div>
         </div>
 
-        <!-- Panel View 2: Output (Aether Telemetry) -->
+        <!-- Panel 2: Output -->
         <div class="panel-body" id="pContentOutput" style="display: block;">
-          <div id="panelLogs">[Aether-SWE Studio] Initialized. Ready to inspect repository and execute autonomous workflows.</div>
+          <div id="panelLogs">[AETHER] Workspace loaded. Ready for task execution.</div>
         </div>
 
-        <!-- Panel View 3: Interactive Terminal -->
-        <div class="panel-body" id="pContentTerminal" style="display: none; padding: 0; display: none; flex-direction: column;">
-          <div id="terminalScreen" style="flex: 1; padding: 10px 16px; overflow-y: auto;">
-            <div style="color: #858585;">Aether Integrated Terminal · Connected to workspace sandbox</div>
-            <div style="color: #38BDF8;">Type 'help', 'status', 'pytest', or 'git status' below.</div>
+        <!-- Panel 3: Terminal -->
+        <div class="panel-body" id="pContentTerminal" style="display: none; padding: 0; flex-direction: column;">
+          <div id="terminalScreen" style="flex: 1; padding: 10px 14px; overflow-y: auto;">
+            <div style="color: var(--text-muted);">Aether Terminal Sandbox</div>
+            <div style="color: var(--text-secondary);">Type 'help', 'status', 'pytest', or 'git status' below.</div>
           </div>
           <div class="terminal-input-row">
             <span class="terminal-prompt-sym">aether@studio:$</span>
@@ -602,20 +631,19 @@
           </div>
         </div>
 
-        <!-- Panel View 4: Judge Tests -->
+        <!-- Panel 4: Test Gate -->
         <div class="panel-body" id="pContentJudge" style="display: none;">
-          <div id="judgePanelContent" style="color: #cccccc;">
-            <div style="font-weight: 600; margin-bottom: 6px;">Judge Gate Diagnostic Summary:</div>
+          <div id="judgePanelContent" style="color: var(--text-secondary);">
+            <div style="font-weight: 600; margin-bottom: 4px;">Test Gate Diagnostic Summary:</div>
             <div>• Flaky Test Exclusion: 2-run symmetric difference active</div>
             <div>• Post-Patch Regression Check: BaselinePass \ PostPatchPass = ∅</div>
-            <div>• Invariant Verification: No uncommitted regressions permitted</div>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- 7. VS Code Bottom Status Bar -->
+  <!-- 7. Status Bar Footer -->
   <footer class="vscode-statusbar">
     <div class="statusbar-group">
       <div class="statusbar-item" id="sbBranch" title="Git Branch">
@@ -624,16 +652,14 @@
         </svg>
         <span id="sbBranchLabel">main</span>
       </div>
-      <div class="statusbar-item" id="sbWorktree" title="Worktree Isolation Status">
+      <div class="statusbar-item" id="sbWorktree" title="Worktree Isolation">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v5.256a2.25 2.25 0 1 0 1.5 0V5.372zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v2.006a2.25 2.25 0 0 1-2.25 2.25H6.5v1.5h2.25A3.75 3.75 0 0 0 12.5 7.5V5.372z"/>
         </svg>
         <span id="sbWorktreeLabel">Worktree: Isolated</span>
       </div>
-      <div class="statusbar-item" id="sbErrorsBadge" title="Errors and Warnings">
+      <div class="statusbar-item" id="sbErrorsBadge" title="Errors">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm0 12a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-3.5H7V4h2z"/></svg>
-        <span>0</span>
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm0 11a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-3H7V5h2z"/></svg>
         <span>0</span>
       </div>
     </div>
@@ -643,13 +669,13 @@
         <span>Spend: $0.0000 / $1.00</span>
       </div>
       <div class="statusbar-item" id="sbBuffer">
-        <span>10% Scribe Buffer: Active</span>
+        <span>10% Reserve Active</span>
       </div>
       <div class="statusbar-item">
         <span>UTF-8</span>
       </div>
       <div class="statusbar-item">
-        <span>Python 3.10+ (.venv)</span>
+        <span>Python 3.13+ (.venv)</span>
       </div>
       <div class="statusbar-item" id="sbNotifications" title="Notifications">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -659,13 +685,12 @@
     </div>
   </footer>
 
-  <!-- BYOM Custom Endpoint & Model Settings Modal -->
+  <!-- BYOM Custom Endpoint Modal -->
   <div class="vscode-modal-overlay" id="customEndpointModal">
     <div class="vscode-modal">
       <div class="vscode-modal-header">
         <div class="vscode-modal-title">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="#38BDF8"><path d="M9 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6L9 1zm4 13H3V2h5v4h5v8z"/></svg>
-          <span>Configure Model Endpoint (BYOM)</span>
+          <span>Configure Model Endpoint</span>
         </div>
         <button class="vscode-modal-close" id="btnCloseCustomModal" title="Close">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
@@ -697,7 +722,6 @@
         <div class="form-group">
           <label class="form-label" for="cfgBaseUrl">Endpoint Base URL</label>
           <input class="form-input" id="cfgBaseUrl" type="text" placeholder="https://generativelanguage.googleapis.com/v1beta/openai" />
-          <span style="font-size: 11px; color: #858585;">API Base URL for completion or proxy endpoint.</span>
         </div>
 
         <div class="form-group">
@@ -708,8 +732,8 @@
         <div class="form-group">
           <label class="form-label" for="cfgApiKey">API Key</label>
           <div style="display: flex; gap: 8px;">
-            <input class="form-input" id="cfgApiKey" type="password" placeholder="AIzaSy... or sk-..." />
-            <button class="btn-secondary" id="btnToggleApiKeyMask" type="button" style="white-space: nowrap;">Show</button>
+            <input class="form-input" id="cfgApiKey" type="password" placeholder="AIzaSy... or sk-..." style="flex: 1;" />
+            <button class="btn-secondary" id="btnToggleApiKeyMask" type="button">Show</button>
           </div>
         </div>
 
@@ -728,9 +752,7 @@
       </div>
 
       <div class="vscode-modal-footer">
-        <button class="btn-secondary" id="btnTestEndpointConn" type="button">
-          Test Connectivity
-        </button>
+        <button class="btn-secondary" id="btnTestEndpointConn" type="button">Test Connectivity</button>
         <div style="display: flex; gap: 8px;">
           <button class="btn-secondary" id="btnCancelCustomModal" type="button">Cancel</button>
           <button class="btn-primary" id="btnSaveCustomEndpoint" type="button">Save & Apply</button>
@@ -744,23 +766,22 @@
     <div class="vscode-modal" style="width: 480px;">
       <div class="vscode-modal-header">
         <div class="vscode-modal-title">
-          <span>About Aether-SWE Studio</span>
+          <span>About AETHER</span>
         </div>
         <button class="vscode-modal-close" id="btnCloseAboutModal" title="Close">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
         </button>
       </div>
       <div class="vscode-modal-body" style="font-size: 12px; line-height: 20px;">
-        <div style="font-size: 15px; font-weight: 700; color: #ffffff;">Aether-SWE Studio v1.3.0</div>
-        <div style="color: #858585;">Autonomous Software Engineering Command Center</div>
-        <div style="margin-top: 10px;">
-          Features:
-          <ul style="margin-left: 18px; margin-top: 4px; color: #cccccc;">
-            <li>Zero Emojis: Pure Codicon / SVG vector architecture</li>
-            <li>Worktree Isolation: <code>../aether-&lt;run_id&gt;</code> sandboxing</li>
-            <li>Grounded Fact Memory & Sentinel AST verification</li>
-            <li>Judge Flaky Test Filtering & Cleanliness scoring</li>
-            <li>Bring Your Own Model (BYOM): Gemini, Anthropic, Ollama, Groq, OpenRouter</li>
+        <div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">AETHER v1.3.0</div>
+        <div style="color: var(--text-secondary);">Autonomous Software Engineering Platform</div>
+        <div style="margin-top: 10px; color: var(--text-secondary);">
+          Workspace Features:
+          <ul style="margin-left: 18px; margin-top: 4px;">
+            <li>Worktree Isolation Sandboxing</li>
+            <li>Grounded Fact Memory & AST Verification</li>
+            <li>Judge Flaky Test Filtering & Cleanliness Scoring</li>
+            <li>Model Customization (Gemini, Anthropic, Ollama, Groq, OpenRouter)</li>
           </ul>
         </div>
       </div>
@@ -771,7 +792,7 @@
     </div>
   </div>
 
-  <!-- Scripts with relative paths -->
+  <!-- Scripts -->
   <script src="js/sse-client.js"></script>
   <script src="js/app.js"></script>
 </body>
