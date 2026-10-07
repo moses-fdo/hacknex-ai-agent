@@ -1,52 +1,5 @@
-/* Classic Engineering Dashboard & Layout System */
+/* Classic Engineering Dashboard Layout & Card Systems */
 
-.dashboard-container {
-  padding: 24px 32px;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Dashboard Compact Section Header */
-.dashboard-header-block {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.dashboard-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.dashboard-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.meta-pill {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-primary);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Dispatcher & Task Primary Work Area */
 .dispatcher-view {
   flex: 1;
   display: flex;
@@ -55,20 +8,21 @@
   justify-content: flex-start;
   padding: 24px 32px;
   overflow-y: auto;
-  gap: 20px;
+  gap: 16px;
 }
 
+/* Primary Task Input Card */
 .vscode-launcher-card {
   width: 100%;
-  max-width: 900px;
-  background: var(--bg-card);
+  max-width: 920px;
+  background: var(--bg-surface);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px 24px;
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .card-title-group {
@@ -78,20 +32,22 @@
 }
 
 .launcher-heading {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em;
 }
 
 .btn-open-folder {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
-  padding: 6px 12px;
+  height: 32px;
+  padding: 0 12px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -101,7 +57,7 @@
 }
 
 .btn-open-folder:hover {
-  background: var(--bg-canvas);
+  background: var(--bg-surface-elevated);
   border-color: var(--border-medium);
 }
 
@@ -113,11 +69,11 @@
 
 .vscode-input-box {
   width: 100%;
-  min-height: 110px;
+  min-height: 105px;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 14px;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   line-height: 20px;
@@ -128,7 +84,7 @@
 
 .vscode-input-box:focus {
   border-color: var(--accent-dusty-blue);
-  box-shadow: 0 0 0 3px rgba(74, 107, 130, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 107, 130, 0.08);
 }
 
 .vscode-input-box::placeholder {
@@ -140,7 +96,7 @@
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--border-subtle);
-  padding-top: 16px;
+  padding-top: 14px;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -149,13 +105,15 @@
   background: var(--accent-button-bg);
   color: var(--accent-button-text);
   border: none;
-  border-radius: var(--radius-md);
-  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  height: 34px;
+  padding: 0 18px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   box-shadow: var(--shadow-button);
 }
@@ -164,24 +122,26 @@
   background: var(--accent-primary-hover);
 }
 
-/* Pinterest-Inspired Masonry Grid Cards */
+/* Compact Dashboard Statistics Cards Grid */
 .metrics-dashboard-grid {
   width: 100%;
-  max-width: 900px;
+  max-width: 920px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 14px; /* Tight 14px uniform gap */
 }
 
 .metric-card {
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border-card);
-  border-radius: var(--radius-md);
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   box-shadow: var(--shadow-card);
+  min-height: 84px;
 }
 
 .metric-label {
@@ -193,7 +153,7 @@
 }
 
 .metric-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   color: var(--text-primary);
@@ -209,7 +169,7 @@
 }
 
 .command-center-header {
-  height: 44px;
+  height: 42px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
@@ -240,7 +200,7 @@
 
 .step-node.active {
   color: var(--text-primary);
-  background: var(--bg-canvas);
+  background: var(--bg-surface-elevated);
   border-color: var(--accent-dusty-blue);
   font-weight: 600;
 }
@@ -256,11 +216,11 @@
   font-size: 11px;
 }
 
-/* Multi-Pane Body */
+/* Multi-Pane Body Grid */
 .command-center-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 340px 1fr 340px;
+  grid-template-columns: 320px 1fr 320px;
   overflow: hidden;
   background: var(--bg-deep);
   gap: 1px;
@@ -275,8 +235,8 @@
 }
 
 .pane-title {
-  height: 38px;
-  background: var(--bg-canvas);
+  height: 36px;
+  background: var(--bg-surface-elevated);
   border-bottom: 1px solid var(--border-subtle);
   padding: 0 14px;
   display: flex;
@@ -291,7 +251,7 @@
 
 .stream-logs {
   flex: 1;
-  padding: 14px;
+  padding: 12px 14px;
   overflow-y: auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
@@ -304,7 +264,7 @@
 
 .diff-content {
   flex: 1;
-  padding: 16px;
+  padding: 14px 16px;
   overflow-y: auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
@@ -339,7 +299,7 @@
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 @media (max-width: 1100px) {
