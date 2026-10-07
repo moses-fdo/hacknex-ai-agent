@@ -191,7 +191,18 @@ class OrchestratorEngine:
             # ---------------------------------------------------------
             # 1. TWO-STAGE TRIAGE GATE (FR-1.1 - FR-1.3)
             # ---------------------------------------------------------
-            triage = WorkerRegistry.triage_issue(issue.description)
+            repo_file_names = []
+            try:
+                for root, _, files in os.walk(self.repo_path):
+                    parts = root.split(os.sep)
+                    if any(p.startswith(".") for p in parts) or "node_modules" in parts or "__pycache__" in parts:
+                        continue
+                    for f in files:
+                        repo_file_names.append(os.path.relpath(os.path.join(root, f), self.repo_path))
+            except Exception:
+                pass
+
+            triage = WorkerRegistry.triage_issue(issue.description, repo_files=repo_file_names)
             self._write_run_log(run_id, "triage_result.json", json.dumps(triage.model_dump(), indent=2))
 
             await self.emit(
@@ -274,7 +285,7 @@ class OrchestratorEngine:
             # ---------------------------------------------------------
             # 3. DETERMINISTIC PREFLIGHT CHECK (FR-3.1 - FR-3.4)
             # ---------------------------------------------------------
-            preflight = PreflightCheck(target_dir)
+            preflight = PreflightCheck(target_dir, base_repo_path=self.repo_path)
             pf_ok, pf_report = preflight.run_check()
             self._write_run_log(run_id, "preflight_report.json", json.dumps(pf_report.model_dump(), indent=2))
 
@@ -426,7 +437,7 @@ class OrchestratorEngine:
             # ---------------------------------------------------------
             # 8. TEST CRAFTER & CNR VERIFICATION (FR-1.4)
             # ---------------------------------------------------------
-            judge = Judge(target_dir)
+            judge = Judge(target_dir, base_repo_path=self.repo_path)
             baseline_pass, flaky = judge.establish_baseline()
 
             repro_path = os.path.join(target_dir, "tests", "test_reproduce_defect.py")
@@ -756,7 +767,7 @@ class OrchestratorEngine:
             )
             # Rollback
             try:
-                Judge(target_dir).rollback()
+                Judge(target_dir, base_repo_path=self.repo_path).rollback()
             except Exception:
                 pass
 

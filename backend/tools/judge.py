@@ -12,16 +12,31 @@ from typing import Dict, List, Optional, Set, Tuple
 from backend.models import JudgeReport
 
 class Judge:
-    def __init__(self, worktree_dir: str):
+    def __init__(self, worktree_dir: str, base_repo_path: Optional[str] = None):
         self.worktree_dir = os.path.abspath(worktree_dir)
+        self.base_repo_path = os.path.abspath(base_repo_path) if base_repo_path else None
         self.pytest_bin = self._find_pytest()
 
     def _find_pytest(self) -> str:
         candidates = [
-            os.path.abspath(".venv/bin/pytest"),
             os.path.join(self.worktree_dir, ".venv/bin/pytest"),
-            "pytest"
         ]
+        if self.base_repo_path:
+            candidates.append(os.path.join(self.base_repo_path, ".venv/bin/pytest"))
+
+        base_name = os.path.basename(self.worktree_dir)
+        parent = os.path.dirname(self.worktree_dir)
+        if base_name.startswith("aether-"):
+            try:
+                for entry in os.listdir(parent):
+                    cand = os.path.join(parent, entry, ".venv/bin/pytest")
+                    if os.path.exists(cand) and not entry.startswith("aether-"):
+                        candidates.append(cand)
+            except Exception:
+                pass
+
+        candidates.append(os.path.abspath(".venv/bin/pytest"))
+        candidates.append("pytest")
         for c in candidates:
             if os.path.exists(c):
                 return c
@@ -30,6 +45,10 @@ class Judge:
     def run_tests(self, target_path: str = "tests", extra_env: Optional[Dict[str, str]] = None) -> Tuple[int, Set[str], str]:
         """Run pytest and collect passed test node IDs."""
         env = os.environ.copy()
+        if os.path.isabs(self.pytest_bin) and ".venv" in self.pytest_bin:
+            venv_bin = os.path.dirname(self.pytest_bin)
+            env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
+            env["VIRTUAL_ENV"] = os.path.dirname(venv_bin)
         env["PYTHONPATH"] = f"{self.worktree_dir}:{env.get('PYTHONPATH', '')}"
         if extra_env:
             env.update(extra_env)
@@ -38,7 +57,7 @@ class Judge:
         if not os.path.isabs(full_target):
             full_target = os.path.join(self.worktree_dir, target_path)
 
-        cmd = [self.pytest_bin, full_target, "-v", "-q"]
+        cmd = [self.pytest_bin, full_target, "-v"]
         proc = subprocess.run(
             cmd,
             cwd=self.worktree_dir,

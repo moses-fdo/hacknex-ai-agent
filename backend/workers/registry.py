@@ -56,15 +56,34 @@ class WorkerRegistry:
         assumption_stated = None
 
         if not is_anchored:
-            # FR-1.2: Interactive Clarification with at most two multiple-choice questions
-            clarification_questions = [
-                "Which subsystem or module is failing? (Options: [A] app/auth/tokens.py, [B] app/models/order.py, [C] app/auth/permissions.py)",
-                "What is the expected vs actual behavior? (Options: [A] Expiration calculation wrong under non-UTC timezone, [B] Signature verification fails, [C] Order total calculation error)"
-            ]
-            # FR-1.3: Unattended assumption fallback
-            assumption_stated = (
-                "Unattended run assumption: Defect anchored to app/auth/tokens.py::is_token_expired based on highest defect probability in repository."
-            )
+            if repo_files:
+                py_candidates = [f for f in repo_files if f.endswith(".py") and not f.startswith("tests/") and not f.startswith(".")]
+                if py_candidates:
+                    top_candidates = py_candidates[:3]
+                    opts = ", ".join([f"[{chr(65+i)}] {c}" for i, c in enumerate(top_candidates)])
+                    clarification_questions = [
+                        f"Which subsystem or module is failing? (Options: {opts})",
+                        "What is the expected vs actual behavior? Provide error message or stack trace."
+                    ]
+                    assumption_stated = (
+                        f"Unattended run assumption: Defect anchored to {top_candidates[0]} based on repository structure."
+                    )
+                else:
+                    clarification_questions = [
+                        "Which file or module is failing? Provide target file and function.",
+                        "What is the expected vs actual behavior? Provide error message or stack trace."
+                    ]
+                    assumption_stated = "Unattended run assumption: General repository investigation across primary files."
+            else:
+                # FR-1.2: Interactive Clarification with at most two multiple-choice questions
+                clarification_questions = [
+                    "Which subsystem or module is failing? (Options: [A] app/auth/tokens.py, [B] app/models/order.py, [C] app/auth/permissions.py)",
+                    "What is the expected vs actual behavior? (Options: [A] Expiration calculation wrong under non-UTC timezone, [B] Signature verification fails, [C] Order total calculation error)"
+                ]
+                # FR-1.3: Unattended assumption fallback
+                assumption_stated = (
+                    "Unattended run assumption: Defect anchored to app/auth/tokens.py::is_token_expired based on highest defect probability in repository."
+                )
 
         return TriageResult(
             has_symptom=has_symptom,

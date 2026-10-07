@@ -13,6 +13,24 @@ import re
 from typing import Any, Callable, Dict, List, Optional
 import httpx
 
+def _load_env_file():
+    for candidate in [".env", os.path.join(os.path.dirname(__file__), "../../.env")]:
+        if os.path.exists(candidate):
+            try:
+                with open(candidate, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip().strip("\"'")
+                            if k and k not in os.environ:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+_load_env_file()
+
 class BudgetExceededException(Exception):
     pass
 
@@ -122,7 +140,7 @@ class BYOMClient:
 
         # 1. Custom Endpoint (Gemini, OpenRouter, Groq, Ollama, LM Studio, or custom proxy)
         if self.custom_endpoint:
-            custom_key = self.custom_api_key or os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+            custom_key = self.custom_api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY", "")
             if self.custom_provider == "gemini_native" or ("/models/" in self.custom_endpoint and "generateContent" in self.custom_endpoint):
                 res = await self._call_gemini_native(self.custom_endpoint, custom_key, model, system_prompt, user_prompt, expected_output_tokens)
                 if res:
@@ -136,14 +154,26 @@ class BYOMClient:
                 if res:
                     return res
 
-        # 2. Check for GEMINI_API_KEY with Gemini OpenAI-compatible endpoint
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        if gemini_key and "gemini" in model.lower():
+        # 2. Check for GEMINI_API_KEY or GOOGLE_API_KEY with Gemini endpoint
+        gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        if gemini_key and ("gemini" in model.lower() or model == "default"):
+            target_gemini_model = model if model != "default" else "gemini-2.0-flash"
+            # Try native endpoint first
+            res = await self._call_gemini_native(
+                "https://generativelanguage.googleapis.com/v1beta/models",
+                gemini_key,
+                target_gemini_model,
+                system_prompt,
+                user_prompt,
+                expected_output_tokens
+            )
+            if res:
+                return res
             try:
                 res = await self._call_openai_compatible(
                     "https://generativelanguage.googleapis.com/v1beta/openai",
                     gemini_key,
-                    model if model != "default" else "gemini-1.5-flash",
+                    target_gemini_model,
                     system_prompt,
                     user_prompt,
                     expected_output_tokens

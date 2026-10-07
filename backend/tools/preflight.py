@@ -14,8 +14,36 @@ from typing import Dict, List, Optional, Tuple
 from backend.models import PreflightReport
 
 class PreflightCheck:
-    def __init__(self, repo_path: str):
+    def __init__(self, repo_path: str, base_repo_path: Optional[str] = None):
         self.repo_path = os.path.abspath(repo_path)
+        self.base_repo_path = os.path.abspath(base_repo_path) if base_repo_path else None
+
+    def _find_pytest(self) -> Optional[str]:
+        candidates = [
+            os.path.join(self.repo_path, ".venv/bin/pytest"),
+        ]
+        if self.base_repo_path:
+            candidates.append(os.path.join(self.base_repo_path, ".venv/bin/pytest"))
+
+        base_name = os.path.basename(self.repo_path)
+        parent = os.path.dirname(self.repo_path)
+        if base_name.startswith("aether-"):
+            try:
+                for entry in os.listdir(parent):
+                    cand = os.path.join(parent, entry, ".venv/bin/pytest")
+                    if os.path.exists(cand) and not entry.startswith("aether-"):
+                        candidates.append(cand)
+            except Exception:
+                pass
+
+        candidates.append(os.path.abspath(".venv/bin/pytest"))
+        if shutil.which("pytest"):
+            candidates.append(shutil.which("pytest"))
+
+        for c in candidates:
+            if os.path.exists(c):
+                return c
+        return None
 
     def parse_env_example(self) -> Dict[str, str]:
         """FR-3.2: Parse .env.example into temporary environment variables. Real .env is never read."""
@@ -78,12 +106,7 @@ class PreflightCheck:
             return False, report
 
         # 2. Test runner availability
-        venv_pytest = os.path.abspath(".venv/bin/pytest")
-        pytest_path = None
-        if os.path.exists(venv_pytest):
-            pytest_path = venv_pytest
-        elif shutil.which("pytest"):
-            pytest_path = shutil.which("pytest")
+        pytest_path = self._find_pytest()
 
         if not pytest_path:
             report.is_ready = False
@@ -115,6 +138,10 @@ class PreflightCheck:
         tests_dir = os.path.join(self.repo_path, "tests")
         if os.path.exists(tests_dir):
             env = os.environ.copy()
+            if os.path.isabs(pytest_path) and ".venv" in pytest_path:
+                venv_bin = os.path.dirname(pytest_path)
+                env["PATH"] = f"{venv_bin}:{env.get('PATH', '')}"
+                env["VIRTUAL_ENV"] = os.path.dirname(venv_bin)
             env["PYTHONPATH"] = f"{self.repo_path}:{env.get('PYTHONPATH', '')}"
             env.update(injected_env)
 

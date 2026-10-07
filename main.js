@@ -42,7 +42,7 @@ function startBackend() {
   console.log("Starting Python FastAPI backend process...");
   backendProcess = spawn(
     pythonPath,
-    ["backend.api.server:app", "--host", "127.0.0.1", "--port", "8000"],
+    ["backend.api.server:app", "--host", "127.0.0.1", "--port", "8000", "--reload"],
     {
       cwd: __dirname,
       env: {
