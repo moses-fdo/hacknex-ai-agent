@@ -1,0 +1,38 @@
+:root {
+  /* Surfaces */
+  --surface-canvas: #FFFFFF;
+  --surface-sidebar: #F9FAFB;
+  --surface-card: #F3F4F6;
+  --surface-card-hover: #E5E7EB;
+  --surface-popover: #FFFFFF;
+  --surface-terminal: #0F1117;
+  --surface-terminal-header: #1A1D27;
+
+  /* Borders (Strict 1px Crisp Neutral) */
+  --border-subtle: #E5E7EB;
+  --border-card: #E2E4E8;
+  --border-terminal: #2A2F3D;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --text-inverted: #FFFFFF;
+
+  /* Accents & States */
+  --accent-primary: #2563EB;
+  --accent-primary-hover: #1D4ED8;
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-error: #EF4444;
+
+  /* Diff Syntax Colors */
+  --diff-add-bg: rgba(16, 185, 129, 0.12);
+  --diff-add-text: #059669;
+  --diff-del-bg: rgba(239, 68, 68, 0.12);
+  --diff-del-text: #DC2626;
+
+  /* Elevation */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --shadow-popover: 0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}

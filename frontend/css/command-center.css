@@ -1,0 +1,231 @@
+/* Command Center Execution Grid */
+.command-center-header {
+  height: 46px;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  overflow-x: auto;
+}
+
+.route-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.step-node.completed {
+  color: var(--status-success);
+}
+
+.step-node.active {
+  color: var(--accent-primary);
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.step-arrow {
+  color: var(--border-subtle);
+  font-size: 11px;
+}
+
+/* Multi-Pane Body */
+.command-center-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr 360px;
+  overflow: hidden;
+  background: var(--surface-terminal);
+}
+
+/* Pane 1: Telemetry Stream */
+.pane-stream {
+  background: #11141D;
+  border-right: 1px solid var(--border-terminal);
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-title {
+  height: 36px;
+  background: var(--surface-terminal-header);
+  border-bottom: 1px solid var(--border-terminal);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stream-logs {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  line-height: 18px;
+  color: #CBD5E1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-entry {
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid var(--accent-primary);
+}
+
+.log-time {
+  color: #64748B;
+  font-size: 10px;
+}
+
+.log-persona {
+  color: #38BDF8;
+  font-weight: 600;
+}
+
+/* Pane 2: Diff Inspector */
+.pane-diff {
+  background: #0B0E14;
+  border-right: 1px solid var(--border-terminal);
+  display: flex;
+  flex-direction: column;
+}
+
+.diff-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.diff-tab {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #94A3B8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0;
+}
+
+.diff-tab.active {
+  color: #FFFFFF;
+  background: #1A1F2C;
+}
+
+.diff-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: pre-wrap;
+  color: #E2E8F0;
+}
+
+.diff-add {
+  background: var(--diff-add-bg);
+  color: var(--diff-add-text);
+  display: block;
+}
+
+.diff-del {
+  background: var(--diff-del-bg);
+  color: var(--diff-del-text);
+  display: block;
+}
+
+/* Pane 3: Judge & Memory */
+.pane-judge {
+  background: #11141D;
+  display: flex;
+  flex-direction: column;
+}
+
+.judge-report-box {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-badge {
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge-zero-regressions {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34D399;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Bottom Telemetry Bar */
+.telemetry-bar {
+  height: 44px;
+  background: #090B10;
+  border-top: 1px solid var(--border-terminal);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 12px;
+  color: #94A3B8;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.telemetry-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.spend-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spend-bar {
+  width: 80px;
+  height: 6px;
+  background: #1E293B;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.spend-fill {
+  height: 100%;
+  width: 16%;
+  background: var(--accent-primary);
+  border-radius: 3px;
+}
