@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aether-SWE Studio</title>
-  <link rel="stylesheet" href="/css/vscode-theme.css">
-  <link rel="stylesheet" href="/css/command-center.css">
+  <!-- Relative paths ensure loading under both http:// and file:// protocols -->
+  <link rel="stylesheet" href="css/vscode-theme.css">
+  <link rel="stylesheet" href="css/command-center.css">
 </head>
 <body>
   <!-- 1. VS Code Custom Titlebar -->
@@ -46,12 +47,110 @@
             </div>
           </div>
         </div>
-        <div class="menu-item">Edit</div>
-        <div class="menu-item">Selection</div>
-        <div class="menu-item">View</div>
-        <div class="menu-item">Run</div>
-        <div class="menu-item">Terminal</div>
-        <div class="menu-item">Help</div>
+
+        <div class="menu-item" id="menuEdit">
+          Edit
+          <div class="vscode-dropdown" id="editDropdown">
+            <div class="dropdown-entry" id="btnEditUndo">
+              <span>Undo</span>
+              <span class="dropdown-shortcut">Ctrl+Z</span>
+            </div>
+            <div class="dropdown-entry" id="btnEditRedo">
+              <span>Redo</span>
+              <span class="dropdown-shortcut">Ctrl+Y</span>
+            </div>
+            <div class="dropdown-separator"></div>
+            <div class="dropdown-entry" id="btnEditCut">
+              <span>Cut</span>
+              <span class="dropdown-shortcut">Ctrl+X</span>
+            </div>
+            <div class="dropdown-entry" id="btnEditCopy">
+              <span>Copy</span>
+              <span class="dropdown-shortcut">Ctrl+C</span>
+            </div>
+            <div class="dropdown-entry" id="btnEditPaste">
+              <span>Paste</span>
+              <span class="dropdown-shortcut">Ctrl+V</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item" id="menuSelection">
+          Selection
+          <div class="vscode-dropdown" id="selectionDropdown">
+            <div class="dropdown-entry" id="btnSelectAll">
+              <span>Select All</span>
+              <span class="dropdown-shortcut">Ctrl+A</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item" id="menuView">
+          View
+          <div class="vscode-dropdown" id="viewDropdown">
+            <div class="dropdown-entry" id="btnViewExplorer">
+              <span>Explorer</span>
+              <span class="dropdown-shortcut">Ctrl+Shift+E</span>
+            </div>
+            <div class="dropdown-entry" id="btnViewSearch">
+              <span>Search</span>
+              <span class="dropdown-shortcut">Ctrl+Shift+F</span>
+            </div>
+            <div class="dropdown-entry" id="btnViewGit">
+              <span>Source Control</span>
+              <span class="dropdown-shortcut">Ctrl+Shift+G</span>
+            </div>
+            <div class="dropdown-entry" id="btnViewTests">
+              <span>Testing & Regressions</span>
+              <span class="dropdown-shortcut">Ctrl+Shift+D</span>
+            </div>
+            <div class="dropdown-separator"></div>
+            <div class="dropdown-entry" id="btnViewAether">
+              <span>Aether Command Center</span>
+            </div>
+            <div class="dropdown-entry" id="btnViewTerminal">
+              <span>Toggle Terminal</span>
+              <span class="dropdown-shortcut">Ctrl+`</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item" id="menuRun">
+          Run
+          <div class="vscode-dropdown" id="runDropdown">
+            <div class="dropdown-entry" id="btnMenuRunAgent">
+              <span>Start Autonomous Repair</span>
+              <span class="dropdown-shortcut">Ctrl+Enter</span>
+            </div>
+            <div class="dropdown-entry" id="btnMenuRunTests">
+              <span>Run Baseline Pytest Suite</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item" id="menuTerminal">
+          Terminal
+          <div class="vscode-dropdown" id="terminalDropdown">
+            <div class="dropdown-entry" id="btnMenuNewTerminal">
+              <span>Focus Terminal</span>
+            </div>
+            <div class="dropdown-entry" id="btnMenuClearTerminal">
+              <span>Clear Terminal Output</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item" id="menuHelp">
+          Help
+          <div class="vscode-dropdown" id="helpDropdown">
+            <div class="dropdown-entry" id="btnHelpCustomEndpoint">
+              <span>Configure Custom Endpoint (BYOM)...</span>
+            </div>
+            <div class="dropdown-entry" id="btnHelpAbout">
+              <span>About Aether-SWE Studio</span>
+            </div>
+          </div>
+        </div>
       </nav>
     </div>
 
@@ -64,13 +163,13 @@
 
     <!-- Window Controls (Minimize, Maximize, Close) -->
     <div class="titlebar-controls">
-      <button class="window-control-btn" title="Minimize">
+      <button class="window-control-btn" id="winMinimize" title="Minimize">
         <svg width="10" height="10" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
       </button>
-      <button class="window-control-btn" title="Maximize">
+      <button class="window-control-btn" id="winMaximize" title="Maximize">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="9" height="9"/></svg>
       </button>
-      <button class="window-control-btn close" title="Close">
+      <button class="window-control-btn close" id="winClose" title="Close">
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor">
           <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
         </svg>
@@ -127,7 +226,7 @@
 
       <!-- Bottom Settings -->
       <div class="activity-group">
-        <button class="activity-btn" id="actSettings" title="Settings">
+        <button class="activity-btn" id="actSettings" title="Settings & Custom Endpoint (BYOM)">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -136,54 +235,118 @@
       </div>
     </aside>
 
-    <!-- Primary Sidebar: Explorer (260px) -->
+    <!-- Primary Sidebar (260px) -->
     <div class="vscode-sidebar">
-      <div class="sidebar-title-header">
-        <span>Explorer</span>
-        <div class="sidebar-actions">
-          <button class="sidebar-icon-btn" id="btnSideOpenFolder" title="Open Folder">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M14 4h-4.414L8.293 2.707A1 1 0 0 0 7.586 2.5H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/>
-            </svg>
-          </button>
-          <button class="sidebar-icon-btn" id="btnRefreshExplorer" title="Refresh">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M13.65 2.35A7.958 7.958 0 0 0 8 0a8 8 0 1 0 8 8h-2a6 6 0 1 1-1.76-4.24l-2.48 2.48H16V0l-2.35 2.35z"/>
-            </svg>
-          </button>
+      <!-- 1. Explorer View Pane -->
+      <div class="sidebar-view-pane active" id="paneExplorer">
+        <div class="sidebar-title-header">
+          <span>Explorer</span>
+          <div class="sidebar-actions">
+            <button class="sidebar-icon-btn" id="btnSideOpenFolder" title="Open Folder">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M14 4h-4.414L8.293 2.707A1 1 0 0 0 7.586 2.5H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1z"/>
+              </svg>
+            </button>
+            <button class="sidebar-icon-btn" id="btnRefreshExplorer" title="Refresh">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M13.65 2.35A7.958 7.958 0 0 0 8 0a8 8 0 1 0 8 8h-2a6 6 0 1 1-1.76-4.24l-2.48 2.48H16V0l-2.35 2.35z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-sections">
+          <!-- Open Editors Accordion -->
+          <div class="accordion-header">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
+            <span>OPEN EDITORS</span>
+          </div>
+          <div class="accordion-content" id="openEditorsList">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Project Workspace Explorer Accordion -->
+          <div class="accordion-header" id="explorerWorkspaceAccordion">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
+            <span id="explorerWorkspaceHeader">ECOMMERCE_API</span>
+          </div>
+          <div class="accordion-content" id="explorerTree">
+            <!-- Tree Nodes populated dynamically -->
+            <div style="padding: 10px 16px; font-size: 11px; color: #858585;">Loading repository files...</div>
+          </div>
+
+          <!-- Grounded Fact Memory Accordion -->
+          <div class="accordion-header" style="margin-top: 10px;">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
+            <span>GROUNDED FACT MEMORY</span>
+          </div>
+          <div class="accordion-content" id="memoryGraphInfo" style="padding: 6px 12px; font-size: 11px; color: #858585;">
+            <div>Path: .aether/memory_graph.json</div>
+            <div>Symbols Indexed: 18</div>
+            <div>Verified Decisions: 1 (UTC Timestamps)</div>
+            <div>Veto History: 0 regressions</div>
+          </div>
         </div>
       </div>
 
-      <div class="sidebar-sections">
-        <!-- Open Editors Accordion -->
+      <!-- 2. Search View Pane -->
+      <div class="sidebar-view-pane" id="paneSearch">
+        <div class="sidebar-title-header">
+          <span>Search</span>
+        </div>
+        <div class="sidebar-search-box">
+          <input class="sidebar-search-input" id="sidebarSearchQuery" type="text" placeholder="Search workspace symbols..." />
+          <div style="font-size: 11px; color: #858585;" id="searchResultsCount">Type query to search AST symbols</div>
+        </div>
+        <div class="sidebar-sections" id="searchResultsList" style="padding: 8px;">
+          <div style="font-size: 11px; color: #858585; padding: 4px;">Indexed AST symbols available</div>
+        </div>
+      </div>
+
+      <!-- 3. Source Control / Git View Pane -->
+      <div class="sidebar-view-pane" id="paneGit">
+        <div class="sidebar-title-header">
+          <span>Source Control: Git</span>
+          <div class="sidebar-actions">
+            <button class="sidebar-icon-btn" id="btnRefreshGit" title="Refresh Git Status">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M13.65 2.35A7.958 7.958 0 0 0 8 0a8 8 0 1 0 8 8h-2a6 6 0 1 1-1.76-4.24l-2.48 2.48H16V0l-2.35 2.35z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="git-status-card">
+          <div><strong>Branch:</strong> <span id="gitBranchDisplay" style="color: #38BDF8;">main</span></div>
+          <div><strong>Worktree:</strong> <span id="gitWorktreeDisplay" style="color: #3fb950;">Isolated Safe</span></div>
+          <div style="margin-top: 6px; font-size: 11px; color: #858585;">Changes will be created in ephemeral worktree branch <code style="color: #cccccc;">aether/fix-&lt;id&gt;</code></div>
+        </div>
+        <div class="accordion-header" style="margin-top: 4px;">
+          <span>WORKING TREE CHANGES</span>
+        </div>
+        <div class="accordion-content" id="gitChangesList" style="padding: 8px; font-size: 11px; color: #858585;">
+          No uncommitted changes in base tree.
+        </div>
+      </div>
+
+      <!-- 4. Testing & Regressions View Pane -->
+      <div class="sidebar-view-pane" id="paneTests">
+        <div class="sidebar-title-header">
+          <span>Testing & Regressions</span>
+        </div>
+        <div class="test-runner-card">
+          <button class="btn-primary" id="btnSidebarRunTests" style="width: 100%;">
+            Run Baseline Tests (Pytest)
+          </button>
+          <div style="font-size: 11px; color: #858585;" id="sidebarTestSummary">
+            Pytest regression gate checks baseline and post-patch passes.
+          </div>
+        </div>
         <div class="accordion-header">
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
-          <span>OPEN EDITORS</span>
+          <span>TEST SUITE</span>
         </div>
-        <div class="accordion-content" id="openEditorsList">
-          <!-- Populated dynamically -->
-        </div>
-
-        <!-- Project Workspace Explorer Accordion -->
-        <div class="accordion-header" id="explorerWorkspaceAccordion">
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
-          <span id="explorerWorkspaceHeader">ECOMMERCE_API</span>
-        </div>
-        <div class="accordion-content" id="explorerTree">
-          <!-- Tree Nodes populated dynamically -->
-          <div style="padding: 10px 16px; font-size: 11px; color: #858585;">Loading repository files...</div>
-        </div>
-
-        <!-- Grounded Fact Memory Accordion -->
-        <div class="accordion-header" style="margin-top: 10px;">
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
-          <span>GROUNDED FACT MEMORY</span>
-        </div>
-        <div class="accordion-content" style="padding: 6px 12px; font-size: 11px; color: #858585;">
-          <div>Path: .aether/memory_graph.json</div>
-          <div>Symbols Indexed: 18</div>
-          <div>Verified Decisions: 1 (UTC Timestamps)</div>
-          <div>Veto History: 0 regressions</div>
+        <div class="accordion-content" id="sidebarTestList" style="padding: 8px; font-size: 11px; color: #858585;">
+          <div>• test_token_expiration_under_non_utc_timezone</div>
+          <div>• test_generate_auth_token_format</div>
+          <div>• test_validate_token_signature</div>
+          <div>• test_refresh_token_revocation</div>
         </div>
       </div>
     </div>
@@ -248,12 +411,56 @@
 
             <!-- Bottom Action Controls -->
             <div class="vscode-launcher-controls">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="font-size: 12px; color: #858585; display: flex; align-items: center; gap: 6px;">
-                  <span>Model:</span>
-                  <span style="color: #cccccc; background: #2d2d2d; padding: 2px 8px; border-radius: 3px; border: 1px solid #3c3c3c;">Gemini 3.5 Flash ($0.15/1M)</span>
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <!-- Interactive Model Selector -->
+                <div style="position: relative;">
+                  <button id="modelTrigger" style="background: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 3px; color: #cccccc; padding: 4px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <span>Model:</span>
+                    <span id="selectedModelLabel" style="color: #38BDF8; font-weight: 500;">Google Gemini 2.0 Flash ($0.15/1M)</span>
+                    <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
+                  </button>
+                  <div class="vscode-dropdown" id="modelMenu" style="width: 320px; top: 32px;">
+                    <div class="dropdown-entry" data-model="gemini-2.0-flash" data-provider="gemini_native" data-label="Google Gemini 2.0 Flash ($0.15/1M)">
+                      <div>
+                        <strong>Google Gemini 2.0 Flash (Default)</strong>
+                        <div style="font-size: 11px; color: #858585;">Fast & accurate · $0.15 / 1M tokens</div>
+                      </div>
+                    </div>
+                    <div class="dropdown-entry" data-model="gemini-1.5-pro" data-provider="gemini_native" data-label="Google Gemini 1.5 Pro ($1.25/1M)">
+                      <div>
+                        <strong>Google Gemini 1.5 Pro</strong>
+                        <div style="font-size: 11px; color: #858585;">Deep reasoning · $1.25 / 1M tokens</div>
+                      </div>
+                    </div>
+                    <div class="dropdown-entry" data-model="gpt-4o" data-provider="openai_compatible" data-label="OpenAI GPT-4o ($2.50/1M)">
+                      <div>
+                        <strong>OpenAI GPT-4o</strong>
+                        <div style="font-size: 11px; color: #858585;">OpenAI API compatible · $2.50 / 1M tokens</div>
+                      </div>
+                    </div>
+                    <div class="dropdown-entry" data-model="claude-3-5-sonnet-20241022" data-provider="anthropic" data-label="Claude 3.5 Sonnet ($3.00/1M)">
+                      <div>
+                        <strong>Anthropic Claude 3.5 Sonnet</strong>
+                        <div style="font-size: 11px; color: #858585;">Anthropic API · $3.00 / 1M tokens</div>
+                      </div>
+                    </div>
+                    <div class="dropdown-entry" data-model="llama3.2" data-provider="openai_compatible" data-label="Local Ollama (Free)">
+                      <div>
+                        <strong>Local Ollama / LLaMA 3.2</strong>
+                        <div style="font-size: 11px; color: #858585;">http://localhost:11434/v1 · $0.00 (Free)</div>
+                      </div>
+                    </div>
+                    <div class="dropdown-separator"></div>
+                    <div class="dropdown-entry" id="btnOpenCustomModal">
+                      <div>
+                        <strong style="color: #38BDF8;">+ Custom Endpoint / BYOM...</strong>
+                        <div style="font-size: 11px; color: #858585;">Gemini OpenAI, Groq, OpenRouter, private proxy</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
+                <!-- Worktree Mode Trigger -->
                 <div style="position: relative;">
                   <button id="worktreeTrigger" style="background: #2d2d2d; border: 1px solid #3c3c3c; border-radius: 3px; color: #cccccc; padding: 4px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                     <span>Worktree Mode: Isolated [Safe]</span>
@@ -358,40 +565,72 @@
       <section class="vscode-panel">
         <div class="panel-tabs-header">
           <div class="panel-tab-group">
-            <div class="panel-tab">Problems 0</div>
+            <div class="panel-tab" id="pTabProblems">Problems 0</div>
             <div class="panel-tab active" id="pTabOutput">Output (Aether Telemetry)</div>
             <div class="panel-tab" id="pTabTerminal">Terminal</div>
-            <div class="panel-tab">Judge Tests</div>
+            <div class="panel-tab" id="pTabJudge">Judge Tests</div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="sidebar-icon-btn" title="Clear Console" onclick="document.getElementById('panelLogs').innerHTML=''">
+            <button class="sidebar-icon-btn" id="btnClearPanel" title="Clear Panel Content">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M10 2v1H6V2h4zm3 2H3l1 11h8l1-11z"/></svg>
             </button>
           </div>
         </div>
-        <div class="panel-body" id="panelLogs">
-          [Aether-SWE Studio] Initialized. Ready to inspect repository and execute autonomous workflows.
+
+        <!-- Panel View 1: Problems -->
+        <div class="panel-body" id="pContentProblems" style="display: none;">
+          <div style="color: #3fb950; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm3.78 5.72-4.5 4.5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 1 1 1.06-1.06L6.75 8.69l3.97-3.97a.75.75 0 1 1 1.06 1.06z"/></svg>
+            <span>No compile, AST syntax, or invented import violations in current workspace.</span>
+          </div>
+        </div>
+
+        <!-- Panel View 2: Output (Aether Telemetry) -->
+        <div class="panel-body" id="pContentOutput" style="display: block;">
+          <div id="panelLogs">[Aether-SWE Studio] Initialized. Ready to inspect repository and execute autonomous workflows.</div>
+        </div>
+
+        <!-- Panel View 3: Interactive Terminal -->
+        <div class="panel-body" id="pContentTerminal" style="display: none; padding: 0; display: none; flex-direction: column;">
+          <div id="terminalScreen" style="flex: 1; padding: 10px 16px; overflow-y: auto;">
+            <div style="color: #858585;">Aether Integrated Terminal · Connected to workspace sandbox</div>
+            <div style="color: #38BDF8;">Type 'help', 'status', 'pytest', or 'git status' below.</div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="terminal-prompt-sym">aether@studio:$</span>
+            <input class="terminal-cli-input" id="terminalCliInput" type="text" placeholder="run command..." autocomplete="off" spellcheck="false" />
+          </div>
+        </div>
+
+        <!-- Panel View 4: Judge Tests -->
+        <div class="panel-body" id="pContentJudge" style="display: none;">
+          <div id="judgePanelContent" style="color: #cccccc;">
+            <div style="font-weight: 600; margin-bottom: 6px;">Judge Gate Diagnostic Summary:</div>
+            <div>• Flaky Test Exclusion: 2-run symmetric difference active</div>
+            <div>• Post-Patch Regression Check: BaselinePass \ PostPatchPass = ∅</div>
+            <div>• Invariant Verification: No uncommitted regressions permitted</div>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- 7. VS Code Bottom Status Bar (Blue #007acc) -->
+  <!-- 7. VS Code Bottom Status Bar -->
   <footer class="vscode-statusbar">
     <div class="statusbar-group">
       <div class="statusbar-item" id="sbBranch" title="Git Branch">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M11.75 9a2.75 2.75 0 1 0-2.15-4.46A2.75 2.75 0 0 0 6.5 7v2a1.5 1.5 0 0 1-1.5 1.5H5A2.75 2.75 0 1 0 5 14h.01A2.75 2.75 0 0 0 8 11.25V7a1.5 1.5 0 0 1 1.5-1.5h.01A2.75 2.75 0 0 0 11.75 9z"/>
         </svg>
-        <span>main</span>
+        <span id="sbBranchLabel">main</span>
       </div>
-      <div class="statusbar-item" id="sbWorktree" title="Worktree Isolation">
+      <div class="statusbar-item" id="sbWorktree" title="Worktree Isolation Status">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v5.256a2.25 2.25 0 1 0 1.5 0V5.372zm7.5-2.122a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm0 2.122a2.25 2.25 0 1 0-1.5 0v2.006a2.25 2.25 0 0 1-2.25 2.25H6.5v1.5h2.25A3.75 3.75 0 0 0 12.5 7.5V5.372z"/>
         </svg>
         <span id="sbWorktreeLabel">Worktree: Isolated</span>
       </div>
-      <div class="statusbar-item" title="Errors and Warnings">
+      <div class="statusbar-item" id="sbErrorsBadge" title="Errors and Warnings">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 8 8A8 8 0 0 0 8 0zm0 12a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-3.5H7V4h2z"/></svg>
         <span>0</span>
         <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 7 7 7 7 0 0 0-7-7zm0 11a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-3H7V5h2z"/></svg>
@@ -403,16 +642,16 @@
       <div class="statusbar-item" id="sbSpend">
         <span>Spend: $0.0000 / $1.00</span>
       </div>
-      <div class="statusbar-item">
+      <div class="statusbar-item" id="sbBuffer">
         <span>10% Scribe Buffer: Active</span>
       </div>
       <div class="statusbar-item">
         <span>UTF-8</span>
       </div>
       <div class="statusbar-item">
-        <span>Python 3.14 (.venv)</span>
+        <span>Python 3.10+ (.venv)</span>
       </div>
-      <div class="statusbar-item" title="Notifications">
+      <div class="statusbar-item" id="sbNotifications" title="Notifications">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
         </svg>
@@ -420,7 +659,120 @@
     </div>
   </footer>
 
-  <script src="/js/sse-client.js"></script>
-  <script src="/js/app.js"></script>
+  <!-- BYOM Custom Endpoint & Model Settings Modal -->
+  <div class="vscode-modal-overlay" id="customEndpointModal">
+    <div class="vscode-modal">
+      <div class="vscode-modal-header">
+        <div class="vscode-modal-title">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="#38BDF8"><path d="M9 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6L9 1zm4 13H3V2h5v4h5v8z"/></svg>
+          <span>Configure Model Endpoint (BYOM)</span>
+        </div>
+        <button class="vscode-modal-close" id="btnCloseCustomModal" title="Close">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
+        </button>
+      </div>
+
+      <div class="vscode-modal-body">
+        <div class="form-group">
+          <label class="form-label">Provider Presets</label>
+          <div class="preset-chip-row">
+            <button class="preset-chip" type="button" data-preset="gemini-openai">Gemini (OpenAI-compatible)</button>
+            <button class="preset-chip" type="button" data-preset="gemini-native">Gemini (Native REST)</button>
+            <button class="preset-chip" type="button" data-preset="groq">Groq</button>
+            <button class="preset-chip" type="button" data-preset="openrouter">OpenRouter</button>
+            <button class="preset-chip" type="button" data-preset="ollama">Local Ollama</button>
+            <button class="preset-chip" type="button" data-preset="openai">OpenAI Official</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgProvider">Endpoint Protocol</label>
+          <select class="form-select" id="cfgProvider">
+            <option value="openai_compatible">OpenAI-compatible (/chat/completions)</option>
+            <option value="gemini_native">Google Gemini Native REST (/v1beta/models)</option>
+            <option value="anthropic">Anthropic Messages API (/v1/messages)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgBaseUrl">Endpoint Base URL</label>
+          <input class="form-input" id="cfgBaseUrl" type="text" placeholder="https://generativelanguage.googleapis.com/v1beta/openai" />
+          <span style="font-size: 11px; color: #858585;">API Base URL for completion or proxy endpoint.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgModelName">Model Identifier</label>
+          <input class="form-input" id="cfgModelName" type="text" placeholder="gemini-2.0-flash" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgApiKey">API Key</label>
+          <div style="display: flex; gap: 8px;">
+            <input class="form-input" id="cfgApiKey" type="password" placeholder="AIzaSy... or sk-..." />
+            <button class="btn-secondary" id="btnToggleApiKeyMask" type="button" style="white-space: nowrap;">Show</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="cfgPriceInput">Prompt Cost ($/1M tokens)</label>
+            <input class="form-input" id="cfgPriceInput" type="number" step="0.01" value="0.15" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cfgPriceOutput">Completion Cost ($/1M tokens)</label>
+            <input class="form-input" id="cfgPriceOutput" type="number" step="0.01" value="0.60" />
+          </div>
+        </div>
+
+        <div id="endpointTestResult" style="font-size: 12px; min-height: 24px; display: flex; align-items: center;"></div>
+      </div>
+
+      <div class="vscode-modal-footer">
+        <button class="btn-secondary" id="btnTestEndpointConn" type="button">
+          Test Connectivity
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" id="btnCancelCustomModal" type="button">Cancel</button>
+          <button class="btn-primary" id="btnSaveCustomEndpoint" type="button">Save & Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div class="vscode-modal-overlay" id="aboutModal">
+    <div class="vscode-modal" style="width: 480px;">
+      <div class="vscode-modal-header">
+        <div class="vscode-modal-title">
+          <span>About Aether-SWE Studio</span>
+        </div>
+        <button class="vscode-modal-close" id="btnCloseAboutModal" title="Close">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06z"/></svg>
+        </button>
+      </div>
+      <div class="vscode-modal-body" style="font-size: 12px; line-height: 20px;">
+        <div style="font-size: 15px; font-weight: 700; color: #ffffff;">Aether-SWE Studio v1.3.0</div>
+        <div style="color: #858585;">Autonomous Software Engineering Command Center</div>
+        <div style="margin-top: 10px;">
+          Features:
+          <ul style="margin-left: 18px; margin-top: 4px; color: #cccccc;">
+            <li>Zero Emojis: Pure Codicon / SVG vector architecture</li>
+            <li>Worktree Isolation: <code>../aether-&lt;run_id&gt;</code> sandboxing</li>
+            <li>Grounded Fact Memory & Sentinel AST verification</li>
+            <li>Judge Flaky Test Filtering & Cleanliness scoring</li>
+            <li>Bring Your Own Model (BYOM): Gemini, Anthropic, Ollama, Groq, OpenRouter</li>
+          </ul>
+        </div>
+      </div>
+      <div class="vscode-modal-footer">
+        <div></div>
+        <button class="btn-primary" id="btnOkAboutModal" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts with relative paths -->
+  <script src="js/sse-client.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 """Shared Pydantic data schemas for Aether-SWE."""
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
@@ -18,6 +18,7 @@ class RunStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     BUDGET_EXCEEDED = "budget_exceeded"
+    ABORTED = "aborted"
 
 class IssueInput(BaseModel):
     issue_id: str = "custom-issue"
@@ -29,6 +30,21 @@ class IssueInput(BaseModel):
     base_branch: str = "main"
     max_budget_usd: float = 1.00
     unattended: bool = True
+    custom_pricing: Optional[Dict[str, float]] = None
+    custom_endpoint: Optional[str] = None
+    custom_api_key: Optional[str] = None
+    custom_provider: Optional[str] = None  # 'openai_compatible', 'anthropic', 'gemini'
+
+class ModelEndpointConfig(BaseModel):
+    id: str
+    name: str
+    provider: str = "openai_compatible"  # 'openai_compatible', 'anthropic', 'gemini'
+    base_url: str
+    api_key: Optional[str] = None
+    models: List[str] = Field(default_factory=list)
+    default_model: str = ""
+    price_per_m_input: float = 0.15
+    price_per_m_output: float = 0.60
 
 class TriageResult(BaseModel):
     has_symptom: bool
@@ -37,6 +53,7 @@ class TriageResult(BaseModel):
     is_anchored: bool
     clarification_questions: List[str] = Field(default_factory=list)
     assumption_stated: Optional[str] = None
+    confidence: float = 1.0
 
 class EditStep(BaseModel):
     file_path: str
@@ -48,6 +65,7 @@ class MultiFilePlan(BaseModel):
     steps: List[EditStep] = Field(default_factory=list)
     rationale: str = ""
     regression_boundaries: List[str] = Field(default_factory=list)
+    dependent_symbols: List[str] = Field(default_factory=list)
 
 class WorkerResult(BaseModel):
     worker_name: str
@@ -58,6 +76,28 @@ class WorkerResult(BaseModel):
     cost_usd: float = 0.0
     tokens_used: int = 0
 
+class CriticReport(BaseModel):
+    score: int = 100
+    added_lines: int = 0
+    deleted_lines: int = 0
+    total_lines_changed: int = 0
+    penalty: int = 0
+    summary: str = ""
+
+class PreflightReport(BaseModel):
+    is_ready: bool = True
+    python_version: str = ""
+    python_valid: bool = True
+    pytest_available: bool = True
+    pytest_path: Optional[str] = None
+    docker_compose_present: bool = False
+    env_example_present: bool = False
+    env_vars_injected: List[str] = Field(default_factory=list)
+    baseline_run_ok: bool = True
+    status: str = "READY"
+    error_message: Optional[str] = None
+    remediation: Optional[str] = None
+
 class JudgeReport(BaseModel):
     baseline_pass_count: int = 0
     post_patch_pass_count: int = 0
@@ -67,25 +107,26 @@ class JudgeReport(BaseModel):
     flaky_excluded: List[str] = Field(default_factory=list)
     veto: bool = False
     details: str = ""
+    self_healing_iteration: int = 0
 
 class MemoryNode(BaseModel):
     id: str
-    node_type: str  # 'File', 'Symbol', 'ArchitecturalDecision', 'HistoricalBug', 'VetoRecord'
+    node_type: str  # 'File', 'Symbol', 'ArchitecturalDecision', 'HistoricalBug', 'VetoRecord', 'DeterministicFact'
     label: str
     properties: Dict[str, Any] = Field(default_factory=dict)
     provenance_run_id: Optional[str] = None
     provenance_commit_sha: Optional[str] = None
     is_provisional: bool = False
     is_stale: bool = False
-    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 class MemoryEdge(BaseModel):
     source: str
     target: str
-    relation: str  # 'DEFINES', 'CALLS', 'DEPENDS_ON', 'CONSTRAINED_BY', 'RESOLVED_BY', 'VETOED_BECAUSE'
+    relation: str  # 'DEFINES', 'CALLS', 'DEPENDS_ON', 'CONSTRAINED_BY', 'RESOLVED_BY', 'VETOED_BECAUSE', 'IMPORTED_BY'
 
 class RunEvent(BaseModel):
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     run_id: str
     persona: str
     kind: WorkerKind
@@ -93,3 +134,16 @@ class RunEvent(BaseModel):
     status: str
     message: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    is_high_priority: bool = False
+
+class TriageClarificationInput(BaseModel):
+    run_id: str
+    answers: Dict[str, str]
+
+class VerifyMemoryInput(BaseModel):
+    node_id: str
+    verified: bool = True
+
+class MergeBranchInput(BaseModel):
+    run_id: str
+    target_branch: str = "main"

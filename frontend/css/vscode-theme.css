@@ -705,3 +705,252 @@ body {
   padding: 0 4px;
   border-radius: 2px;
 }
+
+/* 10. Sidebar Views */
+.sidebar-view-pane {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar-view-pane.active {
+  display: flex;
+}
+
+.sidebar-search-box {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--vscode-border);
+}
+
+.sidebar-search-input {
+  width: 100%;
+  background: var(--vscode-input-bg);
+  border: 1px solid var(--vscode-input-border);
+  color: var(--vscode-text-bright);
+  padding: 5px 8px;
+  font-size: 12px;
+  outline: none;
+  border-radius: 2px;
+}
+
+.sidebar-search-input:focus {
+  border-color: var(--vscode-input-focus);
+}
+
+.git-status-card {
+  padding: 12px;
+  border-bottom: 1px solid var(--vscode-border);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.test-runner-card {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 11. Modal Dialog Styles */
+.vscode-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.vscode-modal-overlay.open {
+  display: flex;
+}
+
+.vscode-modal {
+  width: 580px;
+  max-width: 90vw;
+  background: var(--vscode-sidebar);
+  border: 1px solid var(--vscode-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalFadeIn 0.15s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.vscode-modal-header {
+  padding: 12px 16px;
+  background: var(--vscode-sidebar-header);
+  border-bottom: 1px solid var(--vscode-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vscode-modal-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vscode-text-bright);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vscode-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--vscode-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vscode-modal-close:hover {
+  color: var(--vscode-text-bright);
+}
+
+.vscode-modal-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  background: var(--vscode-input-bg);
+  border: 1px solid var(--vscode-input-border);
+  color: var(--vscode-text-bright);
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 3px;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--vscode-input-focus);
+}
+
+.preset-chip-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.preset-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--vscode-border);
+  color: #cccccc;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.preset-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: var(--vscode-input-focus);
+}
+
+.vscode-modal-footer {
+  padding: 12px 16px;
+  background: var(--vscode-sidebar-header);
+  border-top: 1px solid var(--vscode-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-secondary {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--vscode-border);
+  color: #cccccc;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.btn-primary {
+  padding: 6px 14px;
+  background: var(--vscode-btn-bg);
+  border: none;
+  color: #ffffff;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--vscode-btn-hover);
+}
+
+/* 12. Terminal Prompt Bar */
+.terminal-input-row {
+  display: flex;
+  align-items: center;
+  background: #181818;
+  border-top: 1px solid var(--vscode-border);
+  padding: 4px 12px;
+  gap: 8px;
+}
+
+.terminal-prompt-sym {
+  color: #38BDF8;
+  font-weight: 700;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px;
+}
+
+.terminal-cli-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 12px;
+}
+

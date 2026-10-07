@@ -33,6 +33,12 @@ function startBackend() {
   const venvPython = path.resolve(__dirname, ".venv/bin/uvicorn");
   const pythonPath = fs.existsSync(venvPython) ? venvPython : "uvicorn";
 
+  // Free port 8000 if already occupied by lingering process
+  try {
+    const { execSync } = require("child_process");
+    execSync("fuser -k 8000/tcp 2>/dev/null || lsof -ti:8000 | xargs kill -9 2>/dev/null || true");
+  } catch (e) {}
+
   console.log("Starting Python FastAPI backend process...");
   backendProcess = spawn(
     pythonPath,
@@ -41,6 +47,7 @@ function startBackend() {
       cwd: __dirname,
       env: {
         ...process.env,
+        PATH: `${path.resolve(__dirname, ".venv/bin")}:${process.env.PATH || ""}`,
         PYTHONPATH: `${__dirname}:${path.resolve(__dirname, "benchmarks/ecommerce_api")}`,
       },
     }
@@ -77,7 +84,7 @@ function createWindow() {
   // Load the frontend UI once the backend is ready
   const appUrl = "http://127.0.0.1:8000";
 
-  function tryLoad(retries = 20) {
+  function tryLoad(retries = 30) {
     http.get(`${appUrl}/api/status`, (res) => {
       if (res.statusCode === 200) {
         mainWindow.loadURL(appUrl);
@@ -246,6 +253,24 @@ ipcMain.handle("fs:scanProject", async (event, folderPath) => {
 
 ipcMain.handle("fs:getRecentProjects", async () => {
   return getRecentProjects();
+});
+
+ipcMain.handle("window:minimize", () => {
+  if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.handle("window:maximize", () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.handle("window:close", () => {
+  if (mainWindow) mainWindow.close();
 });
 
 app.whenReady().then(() => {

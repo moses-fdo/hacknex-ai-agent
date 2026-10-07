@@ -3,13 +3,17 @@
  */
 class SSEClient {
   constructor(endpoint = "/api/events") {
-    self.endpoint = endpoint;
+    this.endpoint = endpoint;
     this.eventSource = null;
     this.handlers = [];
   }
 
-  connect() {
-    this.eventSource = new EventSource(this.endpoint);
+  connect(apiBase = "") {
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
+    const url = apiBase ? `${apiBase.replace(/\/$/, "")}${this.endpoint}` : this.endpoint;
+    this.eventSource = new EventSource(url);
 
     this.eventSource.onmessage = (e) => {
       try {

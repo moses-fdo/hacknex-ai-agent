@@ -1,24 +1,44 @@
-"""Judge: Deterministic regression gate, flaky exclusion, and atomic worktree rollback."""
+"""Judge: Deterministic regression gate, flaky exclusion, and atomic worktree rollback.
+
+Fulfills PRD v1.3 Judge tool specifications:
+- Flaky test exclusion via two baseline runs (symmetric difference)
+- Zero regressions gate: BaselinePass \\ PostPatchPass = empty
+- Atomic worktree rollback via git reset --hard HEAD
+- Multi-file atomic post-patch verification
+"""
 import os
 import subprocess
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from backend.models import JudgeReport
 
 class Judge:
     def __init__(self, worktree_dir: str):
-        self.worktree_dir = worktree_dir
-        self.pytest_bin = os.path.abspath(".venv/bin/pytest")
-        if not os.path.exists(self.pytest_bin):
-            self.pytest_bin = "pytest"
+        self.worktree_dir = os.path.abspath(worktree_dir)
+        self.pytest_bin = self._find_pytest()
 
-    def run_tests(self, target_path: str = "tests", extra_env: Dict[str, str] = None) -> Tuple[int, Set[str], str]:
+    def _find_pytest(self) -> str:
+        candidates = [
+            os.path.abspath(".venv/bin/pytest"),
+            os.path.join(self.worktree_dir, ".venv/bin/pytest"),
+            "pytest"
+        ]
+        for c in candidates:
+            if os.path.exists(c):
+                return c
+        return "pytest"
+
+    def run_tests(self, target_path: str = "tests", extra_env: Optional[Dict[str, str]] = None) -> Tuple[int, Set[str], str]:
         """Run pytest and collect passed test node IDs."""
         env = os.environ.copy()
         env["PYTHONPATH"] = f"{self.worktree_dir}:{env.get('PYTHONPATH', '')}"
         if extra_env:
             env.update(extra_env)
 
-        cmd = [self.pytest_bin, target_path, "-v", "-q"]
+        full_target = target_path
+        if not os.path.isabs(full_target):
+            full_target = os.path.join(self.worktree_dir, target_path)
+
+        cmd = [self.pytest_bin, full_target, "-v", "-q"]
         proc = subprocess.run(
             cmd,
             cwd=self.worktree_dir,
@@ -35,13 +55,13 @@ class Judge:
                 test_id = line.split()[0]
                 passed_tests.add(test_id)
 
-        return proc.returncode, passed_tests, proc.stdout + proc.stderr
+        return proc.returncode, passed_tests, proc.stdout + ("\n" + proc.stderr if proc.stderr else "")
 
     def establish_baseline(self) -> Tuple[Set[str], List[str]]:
-        """Run suite twice; exclude flaky tests that disagree."""
+        """Run suite twice; exclude flaky tests that disagree across the two runs."""
         _, pass1, _ = self.run_tests()
         _, pass2, _ = self.run_tests()
-        
+
         stable_pass = pass1.intersection(pass2)
         flaky = list(pass1.symmetric_difference(pass2))
         return stable_pass, flaky
@@ -50,17 +70,24 @@ class Judge:
         self,
         baseline_pass: Set[str],
         reproduction_test_path: str,
-        flaky_excluded: List[str]
+        flaky_excluded: List[str],
+        self_healing_iteration: int = 0
     ) -> JudgeReport:
         r"""Run suite post-patch and calculate regressions: |BaselinePass \ PostPatchPass|."""
         _, post_pass, output = self.run_tests()
-        
-        # Calculate regressions against stable baseline
-        regressions = baseline_pass - post_pass
-        
-        # Verify reproduction test
+
+        # Calculate regressions against stable baseline (excluding known flaky tests)
+        regressions = (baseline_pass - post_pass) - set(flaky_excluded)
+
+        # Verify reproduction test passes
         repro_code, repro_pass, repro_out = self.run_tests(target_path=reproduction_test_path)
         repro_passed = (repro_code == 0)
+
+        veto = (len(regressions) > 0 or not repro_passed)
+        details = (
+            f"=== Post-Patch Test Run ===\n{output}\n"
+            f"=== Reproduction Test Run ({reproduction_test_path}) ===\n{repro_out}"
+        )
 
         report = JudgeReport(
             baseline_pass_count=len(baseline_pass),
@@ -69,23 +96,24 @@ class Judge:
             reproduction_test_passed_after=repro_passed,
             regressions_count=len(regressions),
             flaky_excluded=flaky_excluded,
-            veto=(len(regressions) > 0 or not repro_passed),
-            details=output
+            veto=veto,
+            details=details,
+            self_healing_iteration=self_healing_iteration,
         )
         return report
 
     def rollback(self) -> str:
-        """Atomic hard reset of the worktree."""
+        """Atomic hard reset of the worktree (FR-5.4)."""
         proc = subprocess.run(
             ["git", "reset", "--hard", "HEAD"],
             cwd=self.worktree_dir,
             capture_output=True,
             text=True
         )
-        subprocess.run(
+        clean_proc = subprocess.run(
             ["git", "clean", "-fd"],
             cwd=self.worktree_dir,
             capture_output=True,
             text=True
         )
-        return proc.stdout
+        return proc.stdout + "\n" + clean_proc.stdout

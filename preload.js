@@ -34,5 +34,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Get recently accessed local project folders
   getRecentProjects: async () => {
     return await ipcRenderer.invoke("fs:getRecentProjects");
-  }
+  },
+
+  // Window Controls
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  maximizeWindow: () => ipcRenderer.invoke("window:maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close")
 });
