@@ -112,6 +112,68 @@ class MemoryGraphStore:
             and n.get("node_type") in ("ArchitecturalDecision", "DeterministicFact", "VetoRecord")
         ]
 
+    def add_decision(
+        self,
+        decision_id: str,
+        label: str,
+        category: str,
+        description: str,
+        rules: Optional[List[str]] = None,
+        files: Optional[List[str]] = None,
+        symbols: Optional[List[str]] = None,
+        is_provisional: bool = False,
+    ) -> MemoryNode:
+        """Add or update an ArchitecturalDecision node and link it to files."""
+        node = MemoryNode(
+            id=decision_id,
+            node_type="ArchitecturalDecision",
+            label=label,
+            properties={
+                "category": category,
+                "description": description,
+                "rules": rules or [],
+                "files": files or [],
+                "symbols": symbols or [],
+            },
+            provenance_commit_sha=self._get_head_commit(),
+            is_provisional=is_provisional,
+        )
+        self.add_node(node)
+        for f in (files or []):
+            self.add_edge(MemoryEdge(source=node.id, target=f"file:{f}", relation="GOVERNS"))
+        return node
+
+    def get_decisions(self) -> List[Dict[str, Any]]:
+        """Retrieve all non-stale architectural decision nodes."""
+        return [
+            n for n in self.nodes.values()
+            if n.get("node_type") == "ArchitecturalDecision" and not n.get("is_stale", False)
+        ]
+
+    def get_deterministic_facts(self) -> List[Dict[str, Any]]:
+        """Retrieve all non-stale deterministic facts."""
+        return [
+            n for n in self.nodes.values()
+            if n.get("node_type") == "DeterministicFact" and not n.get("is_stale", False)
+        ]
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Summary counts of nodes, decisions, edges, and symbols."""
+        decisions = [n for n in self.nodes.values() if n.get("node_type") == "ArchitecturalDecision"]
+        facts = [n for n in self.nodes.values() if n.get("node_type") == "DeterministicFact"]
+        files = [n for n in self.nodes.values() if n.get("node_type") == "File"]
+        symbols = [n for n in self.nodes.values() if n.get("node_type") == "Symbol"]
+        verified = [n for n in decisions if not n.get("is_provisional", False)]
+        return {
+            "total_nodes": len(self.nodes),
+            "total_edges": len(self.edges),
+            "decisions_count": len(decisions),
+            "verified_decisions_count": len(verified),
+            "facts_count": len(facts),
+            "files_count": len(files),
+            "symbols_count": len(symbols),
+        }
+
     def query(self, search_term: str, depth: int = 1) -> List[Dict[str, Any]]:
         """Selective subgraph retrieval: returns matching non-stale nodes and their 1-hop neighbors."""
         term = search_term.lower()

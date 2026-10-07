@@ -14,7 +14,7 @@ import json
 import os
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, AsyncGenerator, Callable, Dict, List, Optional
 
 from backend.client.byom_client import BYOMClient, BudgetExceededException
@@ -51,6 +51,47 @@ class OrchestratorEngine:
         self.runs_dir = os.path.join(self.repo_path, ".aether", "runs")
         os.makedirs(self.runs_dir, exist_ok=True)
         self.active_runs: Dict[str, Dict[str, Any]] = {}
+
+    def set_repo_path(self, repo_path: str):
+        """Update active workspace repository and re-initialize managers."""
+        self.repo_path = os.path.abspath(repo_path)
+        self.worktree_mgr = WorktreeManager(self.repo_path)
+        self.memory_store = MemoryGraphStore(self.repo_path)
+        self.runs_dir = os.path.join(self.repo_path, ".aether", "runs")
+        os.makedirs(self.runs_dir, exist_ok=True)
+
+    async def onboard_repo(self, repo_path: Optional[str] = None) -> Dict[str, Any]:
+        """Onboard a new codebase folder: read all files, extract decisions into memory graph, write HOW_IT_WORKS.md."""
+        if repo_path:
+            self.set_repo_path(repo_path)
+
+        from backend.memory.codebase_analyzer import CodebaseAnalyzer
+        analyzer = CodebaseAnalyzer(self.repo_path, self.memory_store)
+        result = analyzer.analyze_folder()
+
+        await self.emit(
+            RunEvent(
+                run_id=f"onboard-{datetime.now(timezone.utc).strftime('%H%M%S')}",
+                persona="Cartographer",
+                kind=WorkerKind.TOOL,
+                action="codebase_onboarded",
+                status="success",
+                message=(
+                    f"Repository '{result['repo_name']}' indexed: {result['total_files']} files read, "
+                    f"{result['decisions_count']} architectural decisions mapped to memory graph. "
+                    f"Generated HOW_IT_WORKS.md"
+                ),
+                metadata={
+                    "repo_path": self.repo_path,
+                    "repo_name": result["repo_name"],
+                    "decisions_count": result["decisions_count"],
+                    "total_files": result["total_files"],
+                    "total_lines": result["total_lines"],
+                    "how_it_works_path": result["how_it_works_path"],
+                },
+            )
+        )
+        return result
 
     def subscribe(self) -> asyncio.Queue:
         q = asyncio.Queue()

@@ -147,6 +147,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseAboutModal = document.getElementById("btnCloseAboutModal");
   const btnOkAboutModal = document.getElementById("btnOkAboutModal");
 
+  // Workspace Decisions & Memory Elements
+  const btnTopbarDecisions = document.getElementById("btnTopbarDecisions");
+  const btnTopbarHowItWorks = document.getElementById("btnTopbarHowItWorks");
+  const topbarDecisionsCount = document.getElementById("topbarDecisionsCount");
+
+  const sidebarDecisionsCount = document.getElementById("sidebarDecisionsCount");
+  const sidebarTotalNodes = document.getElementById("sidebarTotalNodes");
+  const sidebarVerifiedCount = document.getElementById("sidebarVerifiedCount");
+  const btnSidebarOpenHowItWorks = document.getElementById("btnSidebarOpenHowItWorks");
+  const btnSidebarViewDecisions = document.getElementById("btnSidebarViewDecisions");
+  const btnSidebarReanalyze = document.getElementById("btnSidebarReanalyze");
+
+  const commandCenterMemoryList = document.getElementById("commandCenterMemoryList");
+  const btnCCViewAllDecisions = document.getElementById("btnCCViewAllDecisions");
+
+  const decisionsModal = document.getElementById("decisionsModal");
+  const btnCloseDecisionsModal = document.getElementById("btnCloseDecisionsModal");
+  const btnCancelDecisionsModal = document.getElementById("btnCancelDecisionsModal");
+  const modalRepoBadge = document.getElementById("modalRepoBadge");
+  const modalGraphSubtext = document.getElementById("modalGraphSubtext");
+  const btnModalOpenHowItWorks = document.getElementById("btnModalOpenHowItWorks");
+  const btnModalReanalyze = document.getElementById("btnModalReanalyze");
+  const decisionCategoryFilters = document.getElementById("decisionCategoryFilters");
+  const decisionsListContainer = document.getElementById("decisionsListContainer");
+
+  let currentWorkspaceDecisions = [];
+  let currentWorkspaceStats = null;
+  let activeDecisionCategory = "all";
+
   // 2. Application State
   let useWorktree = true;
   let activeRepoPath = "benchmarks/ecommerce_api";
@@ -617,15 +646,40 @@ document.addEventListener("DOMContentLoaded", () => {
     bcActiveFile.innerText = fileName;
   }
 
-  // 8. Workspace Directory Tree Builder
-  async function applyWorkspaceFolder(folderPath) {
+  // 8. Workspace Directory Tree Builder & Architectural Decision Onboarding
+  async function applyWorkspaceFolder(folderPath, autoOpenDoc = true) {
     activeRepoPath = folderPath;
     const folderName = folderPath.split(/[\\/]/).filter(Boolean).pop() || "workspace";
 
     if (titlebarWorkspaceName) titlebarWorkspaceName.innerText = folderName;
     if (explorerWorkspaceHeader) explorerWorkspaceHeader.innerText = folderName.toUpperCase();
     if (bcRepo) bcRepo.innerText = folderName;
+    if (modalRepoBadge) modalRepoBadge.innerText = folderName;
 
+    showStatusNotification(`Reading codebase & mining decisions for ${folderName}...`);
+
+    // 1. Notify Backend to switch workspace repo & analyze codebase to populate memory graph
+    let onboardData = null;
+    try {
+      const resp = await fetch(`${API_BASE}/api/workspace/open`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: folderPath, analyze: true }),
+      });
+      if (resp.ok) {
+        onboardData = await resp.json();
+      }
+    } catch (e) {
+      console.warn("Could not onboard workspace via /api/workspace/open", e);
+    }
+
+    if (onboardData && onboardData.success) {
+      updateMemoryDisplay(onboardData.memory_stats, onboardData.decisions, folderName);
+    } else {
+      loadWorkspaceMemoryAndDecisions();
+    }
+
+    // 2. Scan Directory Tree
     let treeData = null;
     if (window.electronAPI?.scanProject) {
       const scan = await window.electronAPI.scanProject(folderPath);
@@ -649,6 +703,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (treeData && explorerTree) {
       explorerTree.innerHTML = "";
       explorerTree.appendChild(buildTreeElement(treeData, 0));
+    }
+
+    // 3. Automatically open HOW_IT_WORKS.md in editor if generated and autoOpenDoc is true
+    if (autoOpenDoc && onboardData && onboardData.summary?.how_it_works_path) {
+      setTimeout(() => {
+        openHowItWorksInEditor();
+        showStatusNotification(`Workspace ready: ${onboardData.decisions?.length || 0} decisions mapped in memory graph & HOW_IT_WORKS.md generated!`, 5000);
+      }, 350);
+    } else {
+      showStatusNotification(`Workspace loaded: ${folderName}`);
     }
   }
 
@@ -736,6 +800,221 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 3000);
     }
   }
+
+  // 8.5. Grounded Decision Graph & Project Overview Handlers
+  function updateMemoryDisplay(stats, decisions, repoName) {
+    currentWorkspaceStats = stats || currentWorkspaceStats;
+    currentWorkspaceDecisions = decisions || currentWorkspaceDecisions;
+    const count = (decisions && decisions.length) || (stats && stats.decisions_count) || 0;
+    const verified = (stats && stats.verified_decisions_count) || count;
+    const total = (stats && stats.total_nodes) || 0;
+
+    if (topbarDecisionsCount) topbarDecisionsCount.innerText = `${count} Decisions`;
+    if (sidebarDecisionsCount) sidebarDecisionsCount.innerText = `${count} Decisions`;
+    if (sidebarTotalNodes) sidebarTotalNodes.innerText = total ? `${total} nodes` : "--";
+    if (sidebarVerifiedCount) sidebarVerifiedCount.innerText = `${verified} verified`;
+
+    // Update Command Center Pane 3
+    if (commandCenterMemoryList) {
+      if (decisions && decisions.length > 0) {
+        const topDecisions = decisions.slice(0, 5);
+        commandCenterMemoryList.innerHTML = `
+          <div>• Provenance: <code style="color: #38BDF8;">.aether/memory_graph.json</code></div>
+          <div style="margin-top: 4px; color: #3fb950;">• ${decisions.length} Grounded Decisions active</div>
+          ${topDecisions.map(d => `
+            <div style="margin-top: 6px; padding-left: 6px; border-left: 2px solid #007acc; color: #cccccc;">
+              <strong style="color: #ffffff;">${escapeHtml(d.label || '')}</strong>
+              ${d.properties?.rules && d.properties.rules.length > 0 ? `<div style="color: #858585; font-size: 10px;">⚠️ ${escapeHtml(d.properties.rules[0])}</div>` : ''}
+            </div>
+          `).join('')}
+        `;
+      } else {
+        commandCenterMemoryList.innerHTML = `
+          <div>• Provenance: <code style="color: #cccccc;">.aether/memory_graph.json</code></div>
+          <div>• Ready for codebase analysis.</div>
+        `;
+      }
+    }
+  }
+
+  async function loadWorkspaceMemoryAndDecisions() {
+    try {
+      const resp = await fetch(`${API_BASE}/api/workspace/decisions`);
+      if (resp.ok) {
+        const data = await resp.json();
+        updateMemoryDisplay(data.stats, data.decisions, data.repo);
+      }
+    } catch (e) {
+      console.warn("Could not load workspace decisions", e);
+    }
+  }
+
+  async function openHowItWorksInEditor() {
+    showStatusNotification("Opening HOW_IT_WORKS.md...");
+    try {
+      const resp = await fetch(`${API_BASE}/api/workspace/how-it-works`);
+      const data = await resp.json();
+      if (data && data.exists && data.content) {
+        openCodeFile(data.path || "HOW_IT_WORKS.md", "HOW_IT_WORKS.md", data.content);
+        return;
+      }
+    } catch (e) {}
+
+    // Fallback: direct file open
+    openCodeFile("HOW_IT_WORKS.md", "HOW_IT_WORKS.md");
+  }
+
+  async function triggerWorkspaceAnalysis(folderPath = null) {
+    const target = folderPath || activeRepoPath;
+    showStatusNotification(`Analyzing codebase & mining decisions for ${target}...`);
+    try {
+      const resp = await fetch(`${API_BASE}/api/workspace/open`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: target, analyze: true }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        updateMemoryDisplay(data.memory_stats, data.decisions, data.repo_name);
+        renderDecisionsList(activeDecisionCategory);
+        showStatusNotification(`Analysis complete: ${data.decisions?.length || 0} decisions mapped!`, 4000);
+        // Refresh directory tree so HOW_IT_WORKS.md is visible
+        if (window.electronAPI?.scanProject) {
+          const scan = await window.electronAPI.scanProject(target);
+          if (scan && scan.tree && explorerTree) {
+            explorerTree.innerHTML = "";
+            explorerTree.appendChild(buildTreeElement(scan.tree, 0));
+          }
+        }
+        return data;
+      }
+    } catch (e) {
+      showStatusNotification(`Analysis error: ${e.message}`, 4000);
+    }
+    return null;
+  }
+
+  function renderDecisionsList(filterCategory = "all") {
+    if (!decisionsListContainer) return;
+    activeDecisionCategory = filterCategory;
+
+    // Update filter buttons
+    const filterBtns = decisionCategoryFilters?.querySelectorAll(".decision-filter-pill");
+    filterBtns?.forEach(b => {
+      b.classList.toggle("active", b.getAttribute("data-category") === filterCategory);
+    });
+
+    const list = currentWorkspaceDecisions || [];
+    const filtered = filterCategory === "all"
+      ? list
+      : list.filter(d => (d.properties?.category || "").toLowerCase() === filterCategory.toLowerCase());
+
+    if (filtered.length === 0) {
+      decisionsListContainer.innerHTML = `
+        <div style="text-align: center; color: #858585; padding: 24px;">
+          No decisions found in category "${escapeHtml(filterCategory)}".
+        </div>
+      `;
+      return;
+    }
+
+    decisionsListContainer.innerHTML = filtered.map(d => {
+      const cat = d.properties?.category || "General";
+      let badgeClass = "general";
+      const catLower = cat.toLowerCase();
+      if (catLower.includes("auth") || catLower.includes("sec")) badgeClass = "security";
+      else if (catLower.includes("frame")) badgeClass = "framework";
+      else if (catLower.includes("data") || catLower.includes("model")) badgeClass = "data";
+      else if (catLower.includes("test")) badgeClass = "testing";
+      else if (catLower.includes("arch")) badgeClass = "architecture";
+
+      const rules = d.properties?.rules || [];
+      const files = d.properties?.files || [];
+
+      return `
+        <div class="decision-card">
+          <div class="decision-header">
+            <div class="decision-title">${escapeHtml(d.label || '')}</div>
+            <span class="decision-badge ${badgeClass}">${escapeHtml(cat)}</span>
+          </div>
+          <div class="decision-desc">${escapeHtml(d.properties?.description || '')}</div>
+          ${d.properties?.rationale ? `<div style="font-size: 11px; color: #737373; margin-bottom: 6px;"><em>Rationale:</em> ${escapeHtml(d.properties.rationale)}</div>` : ''}
+          ${rules.length > 0 ? `
+            <div class="decision-rules-box">
+              <div style="color: #38BDF8; font-weight: 600; margin-bottom: 4px; font-size: 10px;">ENFORCED RULES & INVARIANTS:</div>
+              ${rules.map(r => `
+                <div class="decision-rule-line">
+                  <span>⚠️</span>
+                  <span>${escapeHtml(r)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${files.length > 0 ? `
+            <div class="decision-files-row">
+              <span style="font-size: 10px; color: #858585;">Governs:</span>
+              ${files.map(f => `
+                <span class="decision-file-pill" data-file="${escapeHtml(f)}" title="Open ${escapeHtml(f)}">${escapeHtml(f)}</span>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers to file pills inside cards
+    decisionsListContainer.querySelectorAll(".decision-file-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const filePath = pill.getAttribute("data-file");
+        if (filePath) {
+          decisionsModal?.classList.remove("open");
+          openCodeFile(filePath, filePath.split("/").pop());
+        }
+      });
+    });
+  }
+
+  function openDecisionsModal() {
+    if (!decisionsModal) return;
+    if (modalRepoBadge) {
+      modalRepoBadge.innerText = activeRepoPath.split(/[\\/]/).filter(Boolean).pop() || "workspace";
+    }
+    if (modalGraphSubtext && currentWorkspaceStats) {
+      modalGraphSubtext.innerText = `${currentWorkspaceStats.total_nodes || 0} nodes · ${currentWorkspaceStats.decisions_count || 0} decisions · ${currentWorkspaceStats.facts_count || 0} facts`;
+    }
+    renderDecisionsList(activeDecisionCategory);
+    decisionsModal.classList.add("open");
+  }
+
+  function closeDecisionsModal() {
+    decisionsModal?.classList.remove("open");
+  }
+
+  // Bind decision events
+  btnTopbarDecisions?.addEventListener("click", openDecisionsModal);
+  btnTopbarHowItWorks?.addEventListener("click", openHowItWorksInEditor);
+  btnSidebarOpenHowItWorks?.addEventListener("click", openHowItWorksInEditor);
+  btnSidebarViewDecisions?.addEventListener("click", openDecisionsModal);
+  btnSidebarReanalyze?.addEventListener("click", () => triggerWorkspaceAnalysis());
+  btnCCViewAllDecisions?.addEventListener("click", openDecisionsModal);
+  btnCloseDecisionsModal?.addEventListener("click", closeDecisionsModal);
+  btnCancelDecisionsModal?.addEventListener("click", closeDecisionsModal);
+  btnModalOpenHowItWorks?.addEventListener("click", () => {
+    closeDecisionsModal();
+    openHowItWorksInEditor();
+  });
+  btnModalReanalyze?.addEventListener("click", async () => {
+    await triggerWorkspaceAnalysis();
+    renderDecisionsList(activeDecisionCategory);
+  });
+
+  // Category filter clicks
+  decisionCategoryFilters?.querySelectorAll(".decision-filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cat = btn.getAttribute("data-category");
+      renderDecisionsList(cat || "all");
+    });
+  });
 
   // 9. Presets & Dispatcher Inputs
   btnPresetEcommerce?.addEventListener("click", () => {

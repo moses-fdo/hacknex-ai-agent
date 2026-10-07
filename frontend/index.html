@@ -159,6 +159,12 @@
       <div class="titlebar-search" id="titlebarSearch">
         <span id="titlebarWorkspaceName">ecommerce_api</span> - Aether-SWE Studio
       </div>
+      <button class="titlebar-badge-btn" id="btnTopbarDecisions" title="View Project Decisions & Architecture Graph">
+        <span>🧠</span> <span id="topbarDecisionsCount">Decisions</span>
+      </button>
+      <button class="titlebar-badge-btn" id="btnTopbarHowItWorks" title="Open HOW_IT_WORKS.md">
+        <span>📖</span> <span>HOW_IT_WORKS.md</span>
+      </button>
     </div>
 
     <!-- Window Controls (Minimize, Maximize, Close) -->
@@ -280,11 +286,22 @@
             <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M4.47 6.47a.75.75 0 0 1 1.06 0L8 8.94l2.47-2.47a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06z"/></svg>
             <span>GROUNDED FACT MEMORY</span>
           </div>
-          <div class="accordion-content" id="memoryGraphInfo" style="padding: 6px 12px; font-size: 11px; color: #858585;">
-            <div>Path: .aether/memory_graph.json</div>
-            <div>Symbols Indexed: 18</div>
-            <div>Verified Decisions: 1 (UTC Timestamps)</div>
-            <div>Veto History: 0 regressions</div>
+          <div class="accordion-content" id="memoryGraphInfo" style="padding: 8px 12px; font-size: 11px; color: #858585;">
+            <div>Path: <code style="color: #cccccc;">.aether/memory_graph.json</code></div>
+            <div>Decisions Mapped: <strong id="sidebarDecisionsCount" style="color: #38BDF8;">--</strong></div>
+            <div>Total Nodes: <span id="sidebarTotalNodes">--</span></div>
+            <div>Verified Invariants: <span id="sidebarVerifiedCount" style="color: #3fb950;">--</span></div>
+            <div style="margin-top: 8px; display: flex; gap: 6px; flex-direction: column;">
+              <button class="btn-micro" id="btnSidebarOpenHowItWorks" style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #2d2d2d; color: #cccccc; border: 1px solid #3c3c3c; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                📖 Open HOW_IT_WORKS.md
+              </button>
+              <button class="btn-micro" id="btnSidebarViewDecisions" style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: #2d2d2d; color: #38BDF8; border: 1px solid #3c3c3c; border-radius: 4px; cursor: pointer; font-size: 11px;">
+                🧠 Inspect Decision Graph
+              </button>
+              <button class="btn-micro" id="btnSidebarReanalyze" style="display: flex; align-items: center; gap: 4px; padding: 4px 8px; background: transparent; color: #858585; border: 1px solid #333333; border-radius: 4px; cursor: pointer; font-size: 10px;">
+                ⚡ Re-analyze Codebase
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -548,13 +565,13 @@
                 <div style="font-size: 12px; color: #858585;">Awaiting post-patch regression tests...</div>
               </div>
 
-              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-top: 1px solid var(--vscode-border); border-bottom: 1px solid var(--vscode-border); margin-top: auto;">
-                GROUNDED DECISION MEMORY
+              <div class="pane-title" style="background: #252526; color: #bbbbbb; border-top: 1px solid var(--vscode-border); border-bottom: 1px solid var(--vscode-border); margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-right: 8px;">
+                <span>GROUNDED DECISION MEMORY</span>
+                <button id="btnCCViewAllDecisions" style="background: transparent; border: none; color: #38BDF8; font-size: 10px; cursor: pointer; text-decoration: underline;">View All</button>
               </div>
-              <div style="padding: 12px; font-size: 11px; color: #858585; font-family: 'JetBrains Mono', monospace;">
-                <div>• Invariant: Token expiry must use UTC</div>
-                <div>• Provenance: .aether/memory_graph.json</div>
-                <div>• Regressions logged: 0</div>
+              <div id="commandCenterMemoryList" style="padding: 12px; font-size: 11px; color: #858585; font-family: 'JetBrains Mono', monospace; max-height: 160px; overflow-y: auto;">
+                <div>• Provenance: <code style="color: #cccccc;">.aether/memory_graph.json</code></div>
+                <div style="color: #38BDF8; margin-top: 4px;">• Initializing decision graph...</div>
               </div>
             </div>
           </div>
@@ -767,6 +784,54 @@
       <div class="vscode-modal-footer">
         <div></div>
         <button class="btn-primary" id="btnOkAboutModal" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decisions & Architecture Graph Modal -->
+  <div class="vscode-modal-overlay" id="decisionsModal">
+    <div class="vscode-modal" style="width: 780px; max-width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="vscode-modal-header">
+        <div class="vscode-modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <span>Grounded Architectural Decisions & Memory Graph</span>
+          <span class="badge" id="modalRepoBadge" style="font-size: 11px; background: #007acc; color: white; padding: 2px 8px; border-radius: 10px;">ecommerce_api</span>
+        </div>
+        <button class="vscode-modal-close" id="btnCloseDecisionsModal" title="Close">✕</button>
+      </div>
+      <div class="vscode-modal-body" style="flex: 1; overflow-y: auto; padding: 16px 20px;">
+        <!-- Overview summary banner -->
+        <div id="decisionsModalSummary" style="background: #252526; border: 1px solid #3c3c3c; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 12px; color: #cccccc;">
+            <div><strong>Graph Store:</strong> <code style="color: #38BDF8;">.aether/memory_graph.json</code></div>
+            <div style="color: #858585; font-size: 11px; margin-top: 2px;" id="modalGraphSubtext">Loading decision nodes...</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-secondary" id="btnModalOpenHowItWorks" style="padding: 5px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              📖 HOW_IT_WORKS.md
+            </button>
+            <button class="btn-primary" id="btnModalReanalyze" style="padding: 5px 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              ⚡ Re-analyze Codebase
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter pills -->
+        <div style="display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;" id="decisionCategoryFilters">
+          <button class="decision-filter-pill active" data-category="all">All</button>
+          <button class="decision-filter-pill" data-category="Security & Auth">Security & Auth</button>
+          <button class="decision-filter-pill" data-category="Framework & Architecture">Framework</button>
+          <button class="decision-filter-pill" data-category="Data & Modeling">Data Layer</button>
+          <button class="decision-filter-pill" data-category="Testing & QA">Testing</button>
+        </div>
+
+        <!-- Decisions list -->
+        <div id="decisionsListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="color: #858585; text-align: center; padding: 20px;">Scanning decisions...</div>
+        </div>
+      </div>
+      <div class="vscode-modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; color: #858585;">Aether-SWE Grounded Memory · Invariants enforced across all specialist workers</span>
+        <button class="btn-secondary" id="btnCancelDecisionsModal" type="button">Close</button>
       </div>
     </div>
   </div>

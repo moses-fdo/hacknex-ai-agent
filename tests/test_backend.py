@@ -291,6 +291,56 @@ def test_custom_endpoint_config_and_test():
     assert test_data["success"] is True
 
 # ==============================================================================
+# 8.5. Codebase Analyzer & Decision Graph Tests
+# ==============================================================================
+
+def test_codebase_analyzer_ecommerce():
+    from backend.memory.codebase_analyzer import CodebaseAnalyzer
+    analyzer = CodebaseAnalyzer("benchmarks/ecommerce_api")
+    res = analyzer.analyze_folder()
+
+    assert res["success"] is True
+    assert res["total_files"] >= 8
+    assert res["decisions_count"] >= 4
+    assert os.path.exists(res["how_it_works_path"])
+
+    # Check for critical architectural decisions and invariants
+    labels = [d["label"] for d in res["decisions"]]
+    assert any("Token Authentication" in l for l in labels)
+    assert any("Role-Based Access Control" in l for l in labels)
+    assert any("Service Domain Layer" in l or "Service" in l for l in labels)
+
+    # Check that decisions are persisted in memory graph
+    stored_decisions = analyzer.memory_store.get_decisions()
+    assert len(stored_decisions) >= 4
+
+def test_api_workspace_endpoints():
+    # 1. Open and analyze workspace
+    res = client.post("/api/workspace/open", json={"path": "benchmarks/ecommerce_api", "analyze": True})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert data["repo_name"] == "ecommerce_api"
+
+    # 2. Get HOW_IT_WORKS.md
+    res_md = client.get("/api/workspace/how-it-works")
+    assert res_md.status_code == 200
+    data_md = res_md.json()
+    assert data_md["exists"] is True
+    assert "Architecture & Project Guide" in data_md["content"]
+
+    # 3. Get decisions
+    res_dec = client.get("/api/workspace/decisions")
+    assert res_dec.status_code == 200
+    data_dec = res_dec.json()
+    assert len(data_dec["decisions"]) >= 4
+
+    # 4. Re-analyze active workspace
+    res_an = client.post("/api/workspace/analyze")
+    assert res_an.status_code == 200
+    assert res_an.json()["success"] is True
+
+# ==============================================================================
 # 9. Full Orchestration Execution Run on Benchmark
 # ==============================================================================
 

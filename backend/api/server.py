@@ -37,18 +37,89 @@ app.add_middleware(
 REPO_PATH = os.path.abspath("benchmarks/ecommerce_api")
 engine = OrchestratorEngine(repo_path=REPO_PATH)
 
+class WorkspaceOpenInput(BaseModel):
+    path: str
+    analyze: bool = True
+
+@app.post("/api/workspace/open")
+async def open_workspace(req: WorkspaceOpenInput):
+    """Open and onboard a repository folder: reads all files, builds decision graph, generates HOW_IT_WORKS.md."""
+    abs_path = os.path.abspath(req.path)
+    if not os.path.exists(abs_path) or not os.path.isdir(abs_path):
+        raise HTTPException(status_code=400, detail=f"Directory does not exist: {req.path}")
+
+    if req.analyze:
+        summary = await engine.onboard_repo(abs_path)
+    else:
+        engine.set_repo_path(abs_path)
+        summary = {"repo_path": abs_path, "repo_name": os.path.basename(abs_path)}
+
+    return {
+        "success": True,
+        "repo": engine.repo_path,
+        "repo_name": os.path.basename(engine.repo_path),
+        "summary": summary,
+        "memory_stats": engine.memory_store.get_stats(),
+        "decisions": engine.memory_store.get_decisions(),
+    }
+
+@app.post("/api/workspace/analyze")
+async def analyze_active_workspace():
+    """Trigger full codebase analysis & decision graph generation for the active repository."""
+    summary = await engine.onboard_repo()
+    return {
+        "success": True,
+        "repo": engine.repo_path,
+        "repo_name": os.path.basename(engine.repo_path),
+        "summary": summary,
+        "memory_stats": engine.memory_store.get_stats(),
+        "decisions": engine.memory_store.get_decisions(),
+    }
+
+@app.get("/api/workspace/how-it-works")
+async def get_how_it_works():
+    """Retrieve the generated HOW_IT_WORKS.md for the active workspace."""
+    md_path = os.path.join(engine.repo_path, "HOW_IT_WORKS.md")
+    alt_md_path = os.path.join(engine.repo_path, ".aether", "HOW_IT_WORKS.md")
+
+    target = md_path if os.path.exists(md_path) else (alt_md_path if os.path.exists(alt_md_path) else None)
+    if not target:
+        return {"exists": False, "content": "", "path": md_path}
+
+    try:
+        with open(target, "r", encoding="utf-8") as f:
+            content = f.read()
+        return {"exists": True, "content": content, "path": target}
+    except Exception as e:
+        return {"exists": False, "error": str(e), "path": target}
+
+@app.get("/api/workspace/decisions")
+async def get_workspace_decisions():
+    """Retrieve all architectural decisions stored in the grounded memory graph."""
+    return {
+        "repo": engine.repo_path,
+        "decisions": engine.memory_store.get_decisions(),
+        "facts": engine.memory_store.get_deterministic_facts(),
+        "stats": engine.memory_store.get_stats(),
+    }
+
 @app.get("/api/status")
 async def get_system_status():
     """Retrieve system health, active repo, and memory/worktree stats."""
     worktrees = engine.worktree_mgr.list_worktrees()
+    stats = engine.memory_store.get_stats()
+    has_how_it_works = os.path.exists(os.path.join(engine.repo_path, "HOW_IT_WORKS.md"))
     return {
-        "repo": REPO_PATH,
+        "repo": engine.repo_path,
+        "repo_name": os.path.basename(engine.repo_path),
         "engine_active": True,
         "memory_nodes_count": len(engine.memory_store.nodes),
         "verified_rules_count": len(engine.memory_store.get_verified_rules()),
         "advisory_hints_count": len(engine.memory_store.get_advisory_hints()),
+        "decisions_count": stats.get("decisions_count", 0),
         "active_worktrees_count": len(worktrees),
         "worktrees": worktrees,
+        "has_how_it_works": has_how_it_works,
     }
 
 @app.get("/api/presets")
@@ -237,9 +308,10 @@ async def stream_events(request: Request):
 async def get_memory_graph():
     """FR-4.1: Retrieve Grounded Memory Graph nodes and edges."""
     return {
-        "repo": REPO_PATH,
+        "repo": engine.repo_path,
         "nodes": list(engine.memory_store.nodes.values()),
         "edges": engine.memory_store.edges,
+        "stats": engine.memory_store.get_stats(),
     }
 
 @app.post("/api/memory/verify")
@@ -312,7 +384,7 @@ async def get_file_content(path: str):
     """Read a code file from disk."""
     abs_path = os.path.abspath(path)
     if not os.path.exists(abs_path):
-        rel_to_repo = os.path.join(REPO_PATH, path)
+        rel_to_repo = os.path.join(engine.repo_path, path)
         if os.path.exists(rel_to_repo):
             abs_path = rel_to_repo
         else:
@@ -342,11 +414,12 @@ async def save_file_content(req: FileSaveInput):
         return {"success": False, "error": str(e)}
 
 @app.get("/api/tree")
-async def get_directory_tree(path: str = "benchmarks/ecommerce_api"):
+async def get_directory_tree(path: Optional[str] = None):
     """Scan and return tree structure of a directory."""
-    abs_path = os.path.abspath(path)
+    target_path = path or engine.repo_path
+    abs_path = os.path.abspath(target_path)
     if not os.path.exists(abs_path):
-        return {"success": False, "error": f"Directory not found: {path}"}
+        return {"success": False, "error": f"Directory not found: {target_path}"}
 
     def scan_dir(cur_dir, root_dir, depth=0):
         if depth > 4:
