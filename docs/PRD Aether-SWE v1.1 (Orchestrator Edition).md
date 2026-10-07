@@ -8,13 +8,14 @@ Aether-SWE is an autonomous software engineering agent that fixes bugs and ships
 
 **The problem.** In long sessions a single agent drowns. It carries 20+ tools and a growing pile of files, then calls the wrong tool, forgets earlier findings, invents APIs, and patches code without checking what else broke. Furthermore, naive agents suffer from six fatal failure modes: guessing on vague bug reports, contaminating user git branches, crashing on unconfigured databases, poisoning memory graphs with hallucinated rules, botching multi-file edits, and running up unlimited API bills.
 
-**The approach.** The Orchestrator routes each task through a skill registry to narrow workers with 2–3 tools each. Hard rules are enforced by deterministic tools in plain code. This edition bakes in six battle-hardened production guardrails:
-1. **Two-stage Triage Gate:** Deterministic anchor check followed by bounded clarification questions, with "Could Not Reproduce" (CNR) as a first-class outcome.
-2. **Physical Git Worktree Isolation:** All modifications, tests, and rollbacks execute in an isolated worktree (`../aether-<run-id>`), making it physically impossible to touch the user's working tree or active uncommitted files.
-3. **Deterministic Preflight Tool:** Dedicated environment pre-flight (owned by the Judge) that initializes `.env.example` and `docker-compose`, checks service health, and halts on environment failures without blaming code.
-4. **Grounded Fact Memory:** A persistent repository graph storing only deterministically verified facts (AST relationships, test commands, commit provenance). Provisional entries act as hints, never constraints, and invalidate automatically when referenced files change.
-5. **Multi-File Staging with Scope Guards:** Architect drafts an ordered edit plan (max 5 files); Surgeon executes step-by-step; Sentinel and Judge verify atomically post-patch.
-6. **Hard Client-Side Budget Enforcement:** BYOM client tracks token costs per model, refuses calls that breach limits, and reserves 10% of the budget to ensure the Scribe can always produce a final post-mortem report.
+**The approach.** The Orchestrator routes each task through a skill registry to narrow workers with 2–3 tools each. Hard rules are enforced by deterministic tools in plain code. This edition bakes in seven battle-hardened production guardrails:
+1. **Automated Codebase Cartography & Decision Memory:** On folder selection, every file is read, architectural patterns and non-negotiable invariants are mined into `.aether/memory_graph.json`, and an exhaustive `HOW_IT_WORKS.md` manual is synthesized so the AI agent remembers how the project works.
+2. **Two-stage Triage Gate:** Deterministic anchor check followed by bounded clarification questions, with "Could Not Reproduce" (CNR) as a first-class outcome.
+3. **Physical Git Worktree Isolation:** All modifications, tests, and rollbacks execute in an isolated worktree (`../aether-<run-id>`), making it physically impossible to touch the user's working tree or active uncommitted files.
+4. **Deterministic Preflight Tool:** Dedicated environment pre-flight (owned by the Judge) that initializes `.env.example` and `docker-compose`, checks service health, and halts on environment failures without blaming code.
+5. **Grounded Fact Memory:** A persistent repository graph storing only deterministically verified facts (AST relationships, test commands, commit provenance). Provisional entries act as hints, never constraints, and invalidate automatically when referenced files change.
+6. **Multi-File Staging with Scope Guards:** Architect drafts an ordered edit plan (max 5 files); Surgeon executes step-by-step; Sentinel and Judge verify atomically post-patch.
+7. **Hard Client-Side Budget Enforcement:** BYOM client tracks token costs per model, refuses calls that breach limits, and reserves 10% of the budget to ensure the Scribe can always produce a final post-mortem report.
 
 ---
 
@@ -25,6 +26,18 @@ The Orchestrator coordinates specialists through a structured skill registry. Th
 **The Execution Loop**
 
 ```
+[User Selects Repository Folder / Workspace]
+       │
+       ▼
+[Codebase Cartographer: Multi-Language Scan & Full File Reading]
+       │
+       ▼
+[Mine Architectural Decisions, Facts & Invariants]
+       │
+       ▼
+[Persist Grounded Memory Graph (.aether/memory_graph.json) & Write HOW_IT_WORKS.md]
+       │
+       ▼
 [Issue Description]
        │
        ▼
@@ -37,7 +50,7 @@ The Orchestrator coordinates specialists through a structured skill registry. Th
 [Preflight Check (Judge/Preflight)] ──(Env Fail)──▶ [Halt: "Environment Not Ready"]
        │
        ▼
-[Cartographer (AST Index & Grounded Memory Scan)]
+[Cartographer (AST Index & Grounded Memory Query)]
        │
        ▼
 [Detective (Localize Root Cause)]
@@ -94,7 +107,7 @@ The system divides labor into 5 LLM workers and 5 deterministic tools:
 | Tool | Role | What It Runs | Done Condition |
 | :--- | :--- | :--- | :--- |
 | **Preflight** | Environment readiness | Detect test runner, parse `.env.example`, launch `docker-compose`, poll health checks | All services healthy, test runner executable |
-| **Cartographer** | AST index & graph sync | `build_ast_index`, `get_import_graph`, `sync_graph_symbols` | Hierarchical skeleton and deterministic import facts synced |
+| **Cartographer** | Multi-language code reader & decision graph miner | `read_codebase_files`, `mine_architectural_decisions`, `build_ast_index`, `sync_decision_graph`, `generate_how_it_works` | Full codebase read, architectural decisions & invariants mapped into memory graph, `HOW_IT_WORKS.md` created |
 | **Sentinel** | Atomic symbol gate | `ruff`/`pyflakes`, `pyright` diff, AST signature checks | Zero new lint/type errors and zero invented symbols across all patched files |
 | **Judge** | Sandbox & regression gate | Flaky test exclusion, baseline run $\times 2$, post-patch test run, worktree `git reset --hard` | Zero regressions ($\text{BaselinePass} \setminus \text{PostPatchPass} = \emptyset$) |
 | **Critic** | Cleanliness scoring | Linter, total diff size calculation, cyclomatic complexity | Cleanliness score 0–100 with total diff size penalty |
@@ -145,6 +158,9 @@ The system divides labor into 5 LLM workers and 5 deterministic tools:
   - Every graph node records `run_id` and `commit_sha`.
   - When Cartographer indexes the repository, any node referencing a file modified between `commit_sha` and `HEAD` is automatically marked `stale`.
 - **FR-4.5 (Conflict Warnings):** If a worker's proposed blueprint contradicts an existing verified memory node, Orchestrator triggers an alert in the UI event stream.
+- **FR-4.6 (Automated Workspace Onboarding & Multi-Language Reading):** Whenever any new folder is selected (via native folder dialog, workspace open API, or presets), the system automatically traverses and reads every source file across the repository (supporting Python, JavaScript, TypeScript, HTML, CSS, JSON, YAML, TOML, Shell, Dockerfiles, etc., while excluding standard build/venv/git artifacts).
+- **FR-4.7 (Grounded Architectural Decision & Invariant Mining):** Automatically analyzes framework architectures, data validation models, authentication mechanisms, service boundaries, and baseline test commands. Extracts critical architectural invariants (e.g., UTC timestamp requirements, case-insensitive role normalization, worktree isolation rules, strict typing) and persists them as `ArchitecturalDecision` nodes with graph edges (`GOVERNS`, `CONSTRAINS`, `DEFINES`, `DEPENDS_ON`).
+- **FR-4.8 (Automated Project Architecture Manual - `HOW_IT_WORKS.md`):** Automatically generates an exhaustive, high-quality Markdown specification at the project root (`HOW_IT_WORKS.md` and `.aether/HOW_IT_WORKS.md`) detailing executive summary, tech stack, architecture decisions, directory map with file purposes, core execution lifecycle, component models, enforced invariants, and run/test commands. Automatically opens in the editor tab upon onboarding.
 
 ### 5. Multi-File Surgery & Scope Guards
 - **FR-5.1 (Ordered Edit Plan):** For issues requiring changes across multiple files, the Architect produces an ordered plan specifying:
@@ -171,6 +187,8 @@ The system divides labor into 5 LLM workers and 5 deterministic tools:
 - **FR-7.6 (Judge Terminal):** Test counts (passed, failed, flaky, regressions) with clear green/red status indicators.
 - **FR-7.7 (Interactive Memory Graph Explorer):** Visual node-link explorer displaying deterministic facts, verified decisions, and provisional hints with stale badges.
 - **FR-7.8 (Preset Challenge Launcher):** One-click runner for benchmark suites (`ecommerce_api` and real-world SWE-bench cases).
+- **FR-7.9 (Project Decisions & Architecture Graph Modal):** Dedicated interactive inspector modal accessible via topbar badge (`[🧠 X Decisions]`) and sidebar actions, offering category filtering (Security & Auth, Framework, Data Layer, Testing, Invariants), enforced rule callouts with warning badges, and clickable file pills for direct navigation.
+- **FR-7.10 (Dynamic Grounded Memory Accordion & Telemetry):** The sidebar memory accordion and Command Center memory pane dynamically reflect live node counts, decision counts, verified invariants, and provide one-click triggers for opening `HOW_IT_WORKS.md` and re-analyzing the codebase.
 
 ---
 
@@ -189,6 +207,7 @@ The system divides labor into 5 LLM workers and 5 deterministic tools:
 | :--- | :--- | :--- |
 | **Pass Hidden Tests** | 30 pts | Test Crafter generates isolated reproduction tests; Judge requires fail-before and pass-after verification. |
 | **Zero Regressions** | Major Penalty | Judge excludes flaky tests, computes $\text{BaselinePass} \setminus \text{PostPatchPass}$, and triggers atomic worktree rollback on any regression. |
+| **Automated Codebase Onboarding & Architectural Memory** | High | Reads every file on folder selection, mines grounded decisions & invariants into `.aether/memory_graph.json`, and synthesizes `HOW_IT_WORKS.md`. |
 | **Grounded Memory & History** | High | Persistent fact graph eliminates repeat scans, enforces provenance (`commit_sha`), and invalidates stale nodes. |
 | **No Hallucinated APIs** | Strict | Sentinel enforces AST parsing, dependency import checks, and pyright static analysis before execution. |
 | **Clean & Safe Git Practices** | High | Git worktree isolation ensures user working branch is never contaminated; changes delivered as clean reviewable branches. |
